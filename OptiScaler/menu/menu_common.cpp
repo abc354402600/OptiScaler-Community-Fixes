@@ -3480,16 +3480,25 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
         ImGui::EndDisabled();
 
-        if (state.dlssgGameDMFGSupported && !dlssgInputOrOutput)
+        if (!dlssgInputOrOutput)
         {
-            ImGui::SameLine(0.0f, 16.0f);
-
-            if (bool dynamicMFG = config->FGDLSSGOverrideForceDMFG.value_or_default();
-                ImGui::Checkbox("Force Dynamic MFG", &dynamicMFG))
+            if (state.dlssgGameDMFGSupported)
             {
-                config->FGDLSSGOverrideForceDMFG = dynamicMFG;
-                StreamlineHooks::updateDlssgOptions();
+                ImGui::SameLine(0.0f, 16.0f);
+
+                if (bool dynamicMFG = config->FGDLSSGOverrideForceDMFG.value_or_default();
+                    ImGui::Checkbox("Force Dynamic MFG", &dynamicMFG))
+                {
+                    config->FGDLSSGOverrideForceDMFG = dynamicMFG;
+                    StreamlineHooks::updateDlssgOptions();
+                }
             }
+
+            SeparatorWithHelpMarker("MFG Unlock (RTX 40)",
+                                      "Raises the generated frame maximum in nvngx_dlssg.dll and in the count "
+                                      "Streamline reports, so the ratio above offers up to 6X on pre-Blackwell "
+                                      "cards. Patched in memory; the file on disk is not touched. Takes effect "
+                                      "on the next game start. Undocumented and unsupported by NVIDIA.");
 
             bool adaUnlock = config->FGDLSSGAdaMfgUnlock.value_or_default();
 
@@ -3539,14 +3548,10 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                         ImGui::TextColored(good, "%u kernel containers run the Blackwell image.", mfg.KernelsRewritten);
                 }
             }
+        }
 
-            ShowHelpMarker("Raises the generated frame maximum in nvngx_dlssg.dll and in the count Streamline "
-                           "reports, so the ratio above offers up to 6X on pre-Blackwell cards. Patched in "
-                           "memory; the file on disk is not touched. Takes effect on the next game start.\n\n"
-                           "Pacing above 2X is uneven -- the module expects Blackwell's flip metering hardware. "
-                           "Try DisableFlipMetering under [NvApi] alongside it.\n\n"
-                           "Undocumented and unsupported by NVIDIA.");
-
+        if (!dlssgInputOrOutput && state.dlssgGameDMFGSupported)
+        {
             ImGui::BeginDisabled(state.dlssgLastSetMode != sl::DLSSGMode::eDynamic);
             static float fpsTarget = config->FGDLSSGFramerateTargetDMFG.value_or_default();
             ImGui::SliderFloat("DMFG FPS Target", &fpsTarget, 0, 200, "%.0f");
