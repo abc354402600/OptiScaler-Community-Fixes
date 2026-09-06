@@ -445,6 +445,14 @@ class Keybind
             configKey.reset();
         }
         ImGui::PopID();
+
+        ImGui::SameLine();
+        ImGui::PushID(id + 100);
+        if (ImGui::Button("해제")) // Backspace와 동일, Unbound(-1) 저장
+        {
+            configKey = UnboundKey;
+        }
+        ImGui::PopID();
     }
 };
 
@@ -7136,7 +7144,7 @@ void MenuCommon::RenderKeybindSettings(RenderMenuContext& ctx)
         ImGui::Spacing();
 
         ImGui::Text("Key combinations are currently NOT supported!");
-        ImGui::Text("Escape to cancel, Backspace to unbind");
+        ImGui::Text("Escape: 취소, Backspace 또는 해제 버튼: 단축키 없음");
         ImGui::Spacing();
 
         static auto menu = Keybind("Menu", 10);
