@@ -178,5 +178,13 @@ std::optional<double> LastGpuTime();
 void RequestCapture(unsigned int frames);
 bool CaptureInProgress();
 
+// Session-only D3D12 inspection. Pending takes a matched snapshot on the next successful resolve;
+// Held runs only that resolve with live Compare/Debug controls, never NGX with stale guides.
+// Capture takes priority and resumes live rendering. Resume invalidates every model history.
+enum class InspectionHoldState { Unavailable, Live, Pending, Held };
+InspectionHoldState GetInspectionHoldState();
+void RequestInspectionHold();
+void ReleaseInspectionHold();
+
 void Shutdown();
 } // namespace DlssNr

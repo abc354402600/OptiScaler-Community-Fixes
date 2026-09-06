@@ -627,7 +627,7 @@ bool EvaluateAtSeamVk(VkCommandBuffer cmdBuffer, NVSDK_NGX_Parameter* params, Vk
 
     // The model's working size. The slider is a fraction of the frame; at 1 it is the frame, and the
     // reduced path below never runs, so the default is byte-for-byte what it was.
-    const float workScale = std::clamp(cfg.DlssNrWorkingScale.value_or_default(), 0.25f, 1.0f);
+    const float workScale = std::clamp(cfg.DlssNrWorkingScale.value_or_default(), 0.25f, 2.0f);
     const uint32_t workWidth = (uint32_t) (width * workScale + 0.5f);
     const uint32_t workHeight = (uint32_t) (height * workScale + 0.5f);
     const bool reduced = workWidth != width || workHeight != height;

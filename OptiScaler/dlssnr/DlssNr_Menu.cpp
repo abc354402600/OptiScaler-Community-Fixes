@@ -376,24 +376,22 @@ void RenderMenu(Config* config, float menuResScale)
                                ? pendingScale
                                : (int) lroundf(config->DlssNrWorkingScale.value_or_default() * 100.0f);
 
-        if (ImGui::SliderInt("Model resolution", &scalePercent, 25, 100, "%d%%"))
+        if (ImGui::SliderInt("Model resolution", &scalePercent, 25, 200, "%d%%"))
             pendingScale = scalePercent;
 
         if (ImGui::IsItemDeactivatedAfterEdit() && pendingScale >= 0)
         {
-            config->DlssNrWorkingScale = std::clamp(pendingScale, 25, 100) / 100.0f;
+            config->DlssNrWorkingScale = std::clamp(pendingScale, 25, 200) / 100.0f;
             pendingScale = -1;
         }
 
-        HelpMarker("What fraction of the frame the model works at. Cost falls with the square of"
-                       "\nthis, so half resolution is roughly a quarter of the time."
-                       "\n\nThe frame is never reduced. Only the model's contribution is computed small"
-                       "\nand enlarged, so the picture underneath is untouched whatever this says."
-                       "\n\nWhat it trades: the shading the model adds is broad and survives enlargement;"
-                       "\nthe fine structure it synthesises does not, and softens. Worth having when the"
-                       "\npass costs more than you want to pay for the detail it returns."
-                       "\n\nThe frame itself stays at full detail whatever this says -- only the"
-                       "\nmodel's own work is done small.");
+        HelpMarker("The model's raster as a percentage of the frame, from 25% to 200%."
+                       "\nThe original frame stays at full detail; only the model's work is resampled."
+                       "\n\nBelow 100%, the model works on a smaller picture and its answer is enlarged."
+                       "\nHalf resolution is a quarter of the model pixels, but fine detail softens."
+                       "\n\nAbove 100%, the model works on a larger raster and its answer returns to"
+                       "\nframe size. 200% is twice each axis, four times the model pixels and higher"
+                       "\nVRAM cost; it does not add game geometry samples.");
 
         {
             bool dual = config->DlssNrDualFeature.value_or_default();
@@ -1152,7 +1150,29 @@ void RenderMenu(Config* config, float menuResScale)
         // while the exaggeration slider was still at 32x and deserves a clean re-run.
 
 
-        if (DlssNr::CaptureInProgress())
+        const auto hold = DlssNr::GetInspectionHoldState();
+        const bool holding = hold == DlssNr::InspectionHoldState::Held;
+        const bool holdPending = hold == DlssNr::InspectionHoldState::Pending;
+        const bool capturing = DlssNr::CaptureInProgress();
+        ImGui::BeginDisabled(!holding && !holdPending &&
+                             (vulkan || capturing || hold == DlssNr::InspectionHoldState::Unavailable));
+        if (ImGui::Button(holding ? "Resume" : holdPending ? "Cancel hold" : "Hold frame"))
+        {
+            if (holding || holdPending)
+                DlssNr::ReleaseInspectionHold();
+            else
+                DlssNr::RequestInspectionHold();
+        }
+        ImGui::EndDisabled();
+        HelpMarker("D3D12 inspection only: keeps the next successful frame's proxy, model answer"
+                   "\nand original together. Compare and Debug remain interactive; the model does"
+                   "\nnot run again until Resume. This does not pause the game."
+                   "\n\nModel and colour tuning apply after Resume. A resize releases the hold."
+                   "\nCapture resumes live rendering first; Hold waits until capture has finished."
+                   "\nUnavailable on native Vulkan or the experimental proxy path.");
+        ImGui::SameLine();
+
+        if (capturing)
         {
             ImGui::TextDisabled("Capturing...");
         }

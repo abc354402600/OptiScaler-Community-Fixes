@@ -397,6 +397,20 @@ std::optional<double> g_lastGpuTime;
 // Writes matched before/after frames on request, so comparisons stop depending on video.
 capture::FrameCapture g_capture;
 
+// All inspection state and capture requests are serialized by g_nrMutex. These are private GPU
+// copies, not references to scratch surfaces that the next live frame will overwrite.
+struct InspectionHold
+{
+    DlssNr::InspectionHoldState state = DlssNr::InspectionHoldState::Live;
+    std::array<ID3D12Resource*, 3> images {}; // actual model input, final answer, untouched original
+    DlssNrConstants constants {};
+    ID3D12Device* device = nullptr; // borrowed from images, which keep the device alive
+    bool split = false;
+};
+InspectionHold g_hold;
+
+void RequestCaptureLocked(unsigned int frames);
+
 // One capture happens on its own each session, so there is always a fresh sample without anyone having
 // to remember to ask. Started after the scene has had a moment to settle: the first frames after a
 // feature is built carry its reset, and are not representative of anything.
@@ -484,7 +498,7 @@ void CheckCaptureTrigger()
     if (std::filesystem::exists(trigger, ec))
     {
         std::filesystem::remove(trigger, ec);
-        DlssNr::RequestCapture(capture::kMaxFrames);
+        RequestCaptureLocked(capture::kMaxFrames);
         LOG_INFO("DLSS-NR capture requested by trigger file");
     }
 }
@@ -860,6 +874,30 @@ void ResetAllHistories()
 
     for (bool& r : g_nr.passReset)
         r = true;
+}
+
+// Never release a texture from the menu thread while the GPU may still read it. Use the same
+// deferred retirement as the model's scratch set; Shutdown releases the remaining resources.
+void ReleaseInspectionHoldLocked()
+{
+    if (g_hold.state == DlssNr::InspectionHoldState::Held)
+        ResetAllHistories();
+
+    for (auto& image : g_hold.images)
+        ParkNrResource(image);
+
+    g_hold = {};
+}
+
+void RequestCaptureLocked(unsigned int frames)
+{
+    if (frames == 0 || g_capture.isActive())
+        return;
+
+    // Includes trigger-file requests: a held resolve must never strand the readback/write clock.
+    ReleaseInspectionHoldLocked();
+    ClearCaptureDirectory();
+    g_capture.request(frames);
 }
 
 void ReleaseSurfacesIfFormatChanged(DXGI_FORMAT needed)
@@ -1257,6 +1295,62 @@ void Barrier(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* res, D3D12_RESO
     b.Transition.StateBefore = from;
     b.Transition.StateAfter = to;
     cmdList->ResourceBarrier(1, &b);
+}
+
+void SnapshotInspectionHold(ID3D12Device* device, ID3D12GraphicsCommandList* cmdList,
+                            ID3D12Resource* modelInput, ID3D12Resource* answer,
+                            ID3D12Resource* original, const DlssNrConstants& constants, bool split)
+{
+    const std::array<ID3D12Resource*, 3> sources { modelInput, answer, original };
+    std::array<ID3D12Resource*, 3> images {};
+    for (size_t i = 0; i < images.size(); ++i)
+    {
+        const auto desc = sources[i]->GetDesc();
+        images[i] = CreateScratch(device, desc.Format, (unsigned int) desc.Width, desc.Height);
+        if (images[i] == nullptr)
+        {
+            // No commands reference any of these yet, so partial allocation can be released now.
+            for (auto* image : images)
+                if (image != nullptr)
+                    image->Release();
+            g_hold.state = DlssNr::InspectionHoldState::Live;
+            LOG_WARN("DLSS-NR: Hold frame could not allocate its snapshot; continuing live");
+            return;
+        }
+    }
+
+    // All three sources are shader-readable here, after a successful model chain and resolve.
+    // Copies follow those writes on their command list; later resolves read only these snapshots.
+    for (size_t i = 0; i < images.size(); ++i)
+    {
+        Barrier(cmdList, sources[i], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                D3D12_RESOURCE_STATE_COPY_SOURCE);
+        Barrier(cmdList, images[i], D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                D3D12_RESOURCE_STATE_COPY_DEST);
+        cmdList->CopyResource(images[i], sources[i]);
+        Barrier(cmdList, sources[i], D3D12_RESOURCE_STATE_COPY_SOURCE,
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        Barrier(cmdList, images[i], D3D12_RESOURCE_STATE_COPY_DEST,
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+    }
+    g_hold.images = images;
+    g_hold.constants = constants;
+    g_hold.device = device;
+    g_hold.split = split;
+    g_hold.state = DlssNr::InspectionHoldState::Held;
+    LOG_INFO("DLSS-NR: inspection frame held");
+}
+
+// Only inspection settings remain live. In particular, the white point and transfer interpretation
+// belong to the stored images and must not drift with the game's current exposure or model tuning.
+void ApplyInspectionControls(DlssNrConstants& constants, const Config& cfg)
+{
+    constants.DebugView = cfg.DlssNrDebugView.value_or_default();
+    constants.DebugScale = cfg.DlssNrWhitePointScale.value_or_default();
+    constants.CompareMode = cfg.DlssNrCompare.value_or_default();
+    constants.CompareSplit = cfg.DlssNrCompareSplit.value_or_default();
+    constants.CompareZoom = std::max(1.0f, cfg.DlssNrCompareZoom.value_or_default());
+    constants.CompareSwap = cfg.DlssNrCompareSwap.value_or_default() ? 1u : 0u;
 }
 
 // The surface the pre-upscale edit lands on, matched to the game's colour buffer.
@@ -1787,6 +1881,7 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
 {
     std::lock_guard<std::mutex> nrLock(g_nrMutex);
     const Config& cfg = *Config::Instance();
+    g_nr.wroteTarget = false;
 
     if (g_nr.failed || cmdList == nullptr || colour == nullptr || depth == nullptr ||
         motion == nullptr || output == nullptr)
@@ -1794,8 +1889,6 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
         ReportSkipOnce(g_nr.failed ? "it already failed this session" : "a resource was missing");
         return;
     }
-
-    g_nr.wroteTarget = false;
 
     ID3D12Resource* target = output;
 
@@ -1848,6 +1941,69 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
     const D3D12_RESOURCE_DESC desc = target->GetDesc();
     const auto width = (unsigned int) desc.Width;
     const auto height = desc.Height;
+
+    ++g_frames;
+    ObservePresent();
+    TickNrRetired();
+    CheckCaptureTrigger();
+
+    if (g_captureWriteAtFrame != 0 && g_frames >= g_captureWriteAtFrame)
+    {
+        g_captureWriteAtFrame = 0;
+        const auto captureDir = Util::DllPath().remove_filename() / "dlssnr-capture";
+        const auto written = g_capture.write(captureDir);
+
+        if (!written.empty())
+            LOG_INFO("DLSS-NR wrote matched before/after frames to {}", written);
+    }
+
+    if (g_hold.state == DlssNr::InspectionHoldState::Held)
+    {
+        const auto heldDesc = g_hold.images[2]->GetDesc();
+        if (g_hold.device != device || heldDesc.Width != desc.Width || heldDesc.Height != desc.Height ||
+            heldDesc.Format != desc.Format || g_hold.split != split || cfg.DlssNrUseProxy.value_or_default())
+            ReleaseInspectionHoldLocked();
+    }
+
+    // A held frame bypasses encode, exposure/guide reads, feature rebuilds and NGX entirely.
+    // Keep the same state envelope and output-arrival contract as the live resolve.
+    if (g_hold.state == DlssNr::InspectionHoldState::Held)
+    {
+        const bool restoreRequired = cfg.RestoreComputeSignature.value_or_default() ||
+                                     cfg.RestoreGraphicSignature.value_or_default();
+        if (restoreRequired && !D3D12Hooks::CanRestoreRootSignature(cmdList))
+        {
+            ReportSkipOnce("the upscaler could not restore state on the held frame");
+        }
+        else
+        {
+            ScopedNrStateEnvelope envelope(cmdList);
+            auto constants = g_hold.constants;
+            ApplyInspectionControls(constants, cfg);
+            g_nr.wroteTarget = DispatchPass(cmdList, constants, g_hold.images[0], g_hold.images[1],
+                                            g_hold.images[2], nullptr, nullptr, target, nullptr);
+            if (!g_nr.wroteTarget)
+            {
+                LOG_WARN("DLSS-NR: held resolve failed; resuming live rendering");
+                ReleaseInspectionHoldLocked();
+            }
+        }
+        Barrier(cmdList, target, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outputArrival);
+        device->Release();
+        return;
+    }
+
+    // Never reuse the compositor or a held snapshot on another device. Its owner must recreate it.
+    if (device != _device)
+    {
+        ReportSkipOnce("the D3D12 device changed; the pass needs recreation");
+        Barrier(cmdList, target, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, outputArrival);
+        device->Release();
+        return;
+    }
+
+    if (cfg.DlssNrUseProxy.value_or_default())
+        ReleaseInspectionHoldLocked();
 
     // Depth and motion vectors are the upscaler's inputs and so are at render resolution, while colour
     // and output are at display resolution. The model takes that as a subrect per resource rather than
@@ -1971,7 +2127,7 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
     // What the model works at. The frame and its edit stay full resolution; only the model's input and
     // answer shrink, and the resolve enlarges the answer while compositing.
     float workScale = cfg.DlssNrWorkingScale.value_or_default();
-    workScale = workScale < 0.25f ? 0.25f : (workScale > 1.0f ? 1.0f : workScale);
+    workScale = workScale < 0.25f ? 0.25f : (workScale > 2.0f ? 2.0f : workScale);
     const auto workWidth = (unsigned int) (width * workScale + 0.5f);
     const auto workHeight = (unsigned int) (height * workScale + 0.5f);
     const bool reduced = workWidth != width || workHeight != height;
@@ -2240,21 +2396,6 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
     // finished, sRGB-encoded frames. The white point is what maps one to the other, and it is a property
     // of the game's exposure rather than a number worth asking anyone to guess: measured means of 0.065,
     // 1.8 and 185 have all been seen in this one game.
-    ++g_frames;
-    ObservePresent();
-    TickNrRetired();
-    CheckCaptureTrigger();
-
-    if (g_captureWriteAtFrame != 0 && g_frames >= g_captureWriteAtFrame)
-    {
-        g_captureWriteAtFrame = 0;
-        const auto captureDir = Util::DllPath().remove_filename() / "dlssnr-capture";
-        const auto written = g_capture.write(captureDir);
-
-        if (!written.empty())
-            LOG_INFO("DLSS-NR wrote matched before/after frames to {}", written);
-    }
-
     // The extra passes, one feature apiece, each built a frame before it is first evaluated.
     //
     // Creating and evaluating a feature on one command list is the dice-roll that hung the GPU, so a
@@ -2765,15 +2906,10 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
         resolveParams.Height = height;
         resolveParams.TransferStrength = cfg.DlssNrTransferStrength.value_or_default();
         resolveParams.ColourStrength = cfg.DlssNrColourStrength.value_or_default();
-        resolveParams.DebugView = cfg.DlssNrDebugView.value_or_default();
         resolveParams.MaxRatio = cfg.DlssNrMaxRatio.value_or_default();
         resolveParams.Transfer = cfg.DlssNrTransfer.value_or_default();
-        resolveParams.DebugScale = cfg.DlssNrWhitePointScale.value_or_default();
         resolveParams.Passthrough = isHdrBuffer ? 0u : 1u;
-        resolveParams.CompareMode = cfg.DlssNrCompare.value_or_default();
-        resolveParams.CompareSplit = cfg.DlssNrCompareSplit.value_or_default();
-        resolveParams.CompareZoom = std::max(1.0f, cfg.DlssNrCompareZoom.value_or_default());
-        resolveParams.CompareSwap = cfg.DlssNrCompareSwap.value_or_default() ? 1u : 0u;
+        ApplyInspectionControls(resolveParams, cfg);
 
         // The numbers the composition actually ran with, logged when any of them changes.
         //
@@ -2840,17 +2976,18 @@ void DlssNr_Dx12::Dispatch(ID3D12GraphicsCommandList* cmdList, ID3D12Resource* c
         }
 
         setWork(answer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-        DispatchPass(cmdList, resolveParams, modelInput, work[answer], g_nr.hdrCopy, motionIn,
-                            nullptr, target, nullptr);
+        g_nr.wroteTarget = DispatchPass(cmdList, resolveParams, modelInput, work[answer], g_nr.hdrCopy,
+                                        motionIn, nullptr, target, nullptr);
+        if (g_nr.wroteTarget && g_hold.state == DlssNr::InspectionHoldState::Pending)
+            SnapshotInspectionHold(device, cmdList, modelInput, work[answer], g_nr.hdrCopy,
+                                   resolveParams, split);
         setWork(answer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-
-        g_nr.wroteTarget = true;
 
         // On-demand capture works in this path too: the staging copy still holds the frame as the
         // upscaler produced it, and the edited frame is the output itself. The write happens a few
         // frames later, once the GPU is certainly past these copies -- this path has no fence of its
         // own.
-        if (g_capture.isActive())
+        if (g_nr.wroteTarget && g_capture.isActive())
         {
             g_capture.record(cmdList, device, g_nr.colorCopy,
                              D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, target,
@@ -3485,15 +3622,48 @@ std::optional<double> LastGpuTime() { return g_lastGpuTime; }
 
 void RequestCapture(unsigned int frames)
 {
-    ClearCaptureDirectory();
-    g_capture.request(frames);
+    std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    RequestCaptureLocked(frames);
 }
 
-bool CaptureInProgress() { return g_capture.isActive(); }
+bool CaptureInProgress()
+{
+    std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    return g_capture.isActive();
+}
+
+InspectionHoldState GetInspectionHoldState()
+{
+    std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    if (g_hold.state != InspectionHoldState::Live)
+        return g_hold.state;
+    const auto& cfg = *Config::Instance();
+    return g_nr.feature != nullptr && !g_nr.failed && cfg.DlssNrEnabled.value_or_default() &&
+                   !cfg.DlssNrUseProxy.value_or_default()
+               ? InspectionHoldState::Live : InspectionHoldState::Unavailable;
+}
+
+void RequestInspectionHold()
+{
+    std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    const auto& cfg = *Config::Instance();
+    if (g_hold.state == InspectionHoldState::Live && !g_capture.isActive() &&
+        g_captureWriteAtFrame == 0 && g_nr.feature != nullptr && !g_nr.failed &&
+        cfg.DlssNrEnabled.value_or_default() && !cfg.DlssNrUseProxy.value_or_default())
+        g_hold.state = InspectionHoldState::Pending;
+}
+
+void ReleaseInspectionHold()
+{
+    std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    ReleaseInspectionHoldLocked();
+}
 
 void Shutdown()
 {
     std::lock_guard<std::mutex> nrLock(g_nrMutex);
+    ReleaseInspectionHoldLocked();
+    g_captureWriteAtFrame = 0;
 
     for (auto& r : g_nrRetired)
     {
