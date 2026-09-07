@@ -8,18 +8,19 @@
 
 # OptiScaler Susemi Edition
 
-Korean UI + MFG unlock + 20/30-series FG bundle. Get **v7**.
+Korean UI + MFG unlock + 20/30-series FG bundle. Grab the latest below.
 
-[![v7 release](https://img.shields.io/badge/Download-v7-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
-[![Korean build](https://img.shields.io/badge/Download-KO-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-ko.zip)
-[![English build](https://img.shields.io/badge/Download-EN-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-en.zip)
+[![Latest release](https://img.shields.io/badge/Download-latest-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/latest)
+[![Korean build](https://img.shields.io/badge/Download-KO-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/latest/download/OptiScaler-current-ko.zip)
+[![English build](https://img.shields.io/badge/Download-EN-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/latest/download/OptiScaler-current-en.zip)
+[![Total downloads](https://img.shields.io/github/downloads/grim-susemi/OptiScaler-Susemi/total?style=for-the-badge&logo=github&logoColor=white&label=Total%20downloads)](https://github.com/grim-susemi/OptiScaler-Susemi/releases)
 
 </div>
 
 > [!NOTE]
 > Personal fork. Upstream is [optiscaler/OptiScaler](https://github.com/optiscaler/OptiScaler), base is [y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG](https://github.com/y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG). The original docs are folded below, untouched.
 
-## <a id="susemi-diff"></a>What's changed in this fork (v7)
+## <a id="susemi-diff"></a>What's changed in this fork
 
 - **Korean UI** — overlay + tooltips in Korean, per-key **Unbind** button
 - **MFG unlock** — frame-generation ratio unlock for 40-series cards. Fail-closed + active indicator
@@ -29,8 +30,8 @@ Korean UI + MFG unlock + 20/30-series FG bundle. Get **v7**.
 
 ## <a id="susemi-download"></a>Download
 
-- Recommended: [v7 release page](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
-- `OptiScaler-current-ko.zip` (Korean) / `OptiScaler-current-en.zip` (English) — grab one
+- Recommended: [latest release page](https://github.com/grim-susemi/OptiScaler-Susemi/releases/latest) — always points at the newest
+- `OptiScaler-current-ko.zip` (Korean) / `OptiScaler-current-en.zip` (English) — grab one (same file names every release)
 
 ## <a id="susemi-install"></a>Install (3 steps)
 
