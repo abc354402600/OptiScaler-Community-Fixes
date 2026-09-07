@@ -6,14 +6,15 @@
 <hr />
 <br />
 <div align="center">
-  <a href="https://github.com/sponsors/cdozdil?frequency=one-time"><img src="images/gh-sponsor-red.png" /></a>
-  <a href="https://buymeacoffee.com/nitec"><img src="images/bmac.png" /></a>
+  <img src="images/susemi-title.svg" alt="OptiScaler Susemi Edition" width="800" />
+  <br />
+  <sub>Personal fork — Korean UI · MFG unlock · 30-series FG bundle</sub>
 </div>
 <br />
 
 ## Table of Contents
 
-**0.** [**Susemi Edition — 이 포크의 변경점**](#susemi-diff) · [**받기**](#susemi-download) · [**설치 요약**](#susemi-install) · [**주의**](#susemi-notes)
+**0.** [**Susemi Edition — what's changed**](#susemi-diff) · [**Download**](#susemi-download) · [**Install**](#susemi-install) · [**Notes**](#susemi-notes)
 **1.** [**About**](#about)  
 **2.** [**How it works?**](#how-it-works)  
 **3.** [**Supported APIs and Upscalers**](#which-apis-and-upscalers-are-supported)  
@@ -24,63 +25,50 @@
 
 <br />
 <div align="center">
-  <a href="https://discord.gg/wEyd9w4hG5"><img src="https://img.shields.io/badge/OptiScaler-blue?style=for-the-badge&logo=discord&logoColor=white&logoSize=auto&color=5865F2" alt="Discord invite"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/releases/latest"><img src="https://img.shields.io/badge/Download-Stable-green?style=for-the-badge&logo=github&logoSize=auto" alt="Stable release"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/releases/tag/nightly"><img src="https://img.shields.io/badge/Download-Nightly-purple?style=for-the-badge&logo=github&logoSize=auto" alt="Nightly release"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/wiki"><img src="https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook&logoColor=white&logoSize=auto" alt="Wiki"></a>
-</div>
-<div align="center">
-  <a href="https://github.com/optiscaler/OptiScaler/releases"><img src="https://img.shields.io/github/downloads/optiscaler/optiscaler/total?style=for-the-badge&logo=gitextensions&logoSize=auto&label=Total" alt="Total DL"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/releases/latest"><img src="https://img.shields.io/github/downloads/optiscaler/optiscaler/latest/total?style=for-the-badge&logo=gitextensions&logoSize=auto&label=Stable&color=green&logoColor=white" alt="Stable DL"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/releases/tag/nightly"><img src="https://img.shields.io/github/downloads/optiscaler/OptiScaler/nightly/total?style=for-the-badge&logo=gitextensions&logoColor=white&logoSize=auto&label=Nightly&color=purple" alt="Nightly DL"></a>
-  <a href="https://github.com/optiscaler/OptiScaler/stargazers"><img src="https://img.shields.io/github/stars/optiscaler/optiscaler?style=for-the-badge&logo=githubsponsors&logoColor=white&label=S.T.A.R.S." alt="Stars"></a>
-</div>
-
-<div align="center">
 
 # OptiScaler Susemi Edition
 
-한글 메뉴 + MFG 잠금해제 + 30번대 FG 묶음 포크. 받는 건 **v7** 하나.
+Korean UI + MFG unlock + 30-series FG bundle. Get **v7**.
 
-[![v7 릴리스](https://img.shields.io/badge/Download-v7-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
-[![한글판](https://img.shields.io/badge/Download-KO-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-ko.zip)
-[![영문판](https://img.shields.io/badge/Download-EN-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-en.zip)
+[![v7 release](https://img.shields.io/badge/Download-v7-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
+[![Korean build](https://img.shields.io/badge/Download-KO-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-ko.zip)
+[![English build](https://img.shields.io/badge/Download-EN-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-en.zip)
 
 </div>
 
 > [!NOTE]
-> 개인 포크다. 원본은 [optiscaler/OptiScaler](https://github.com/optiscaler/OptiScaler), 바탕은 [y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG](https://github.com/y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG)다. 원본 설명은 아래 접힌 박스에 그대로 있다.
+> Personal fork. Upstream is [optiscaler/OptiScaler](https://github.com/optiscaler/OptiScaler), base is [y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG](https://github.com/y4my4my4m/OptiScaler_DLSSNR_Multipass_MFG). The original docs are folded below, untouched.
 
-## <a id="susemi-diff"></a>이 포크의 변경점 (v7 기준)
+## <a id="susemi-diff"></a>What's changed in this fork (v7)
 
-- **한글 메뉴** — 오버레이·툴팁 한국어 + 키별 **해제** 버튼
-- **MFG 잠금해제** — 40번대 카드 프레임 생성 배율 해제. 실패하면 꺼진 채로 유지 + 켜짐 표시
-- **NR 200% 복원** — 뉴럴 렌더링 200% 모델 + D3D12 점검 유지
-- **30번대 FG 묶음** — 필요한 DLSS·Streamline·FG 파일을 zip에 동봉, 풀기만 하면 됨
-- **영문판 동시 제공** — 같은 내용의 EN zip 별도 제공
+- **Korean UI** — overlay + tooltips in Korean, per-key **Unbind** button
+- **MFG unlock** — frame-generation ratio unlock for 40-series cards. Fail-closed + active indicator
+- **NR 200% restored** — neural rendering 200% model + D3D12 inspection hold
+- **30-series FG bundle** — DLSS / Streamline / FG files bundled in the zip, extract and go
+- **English build included** — same content as a separate EN zip
 
-## <a id="susemi-download"></a>받기
+## <a id="susemi-download"></a>Download
 
-- 권장: [v7 릴리스 페이지](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
-- `OptiScaler-current-ko.zip` (한글판) / `OptiScaler-current-en.zip` (영문판) — 둘 중 하나만 받으면 된다
+- Recommended: [v7 release page](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
+- `OptiScaler-current-ko.zip` (Korean) / `OptiScaler-current-en.zip` (English) — grab one
 
-## <a id="susemi-install"></a>설치 요약 (3줄)
+## <a id="susemi-install"></a>Install (3 steps)
 
-1. zip을 **게임 exe 옆**에 풀기
-2. `OptiScaler.ini` 확인 — `[DLSSG] AdaMfgUnlock` 등, 주석대로 자기 카드에 맞게
-3. `OptiScaler.dll`을 **`dxgi.dll`** 로 이름 변경 (Vulkan 전용 게임은 `winmm.dll`·`version.dll` 중 게임이 읽는 이름으로)
+1. Extract the zip **next to the game exe**
+2. Check `OptiScaler.ini` — e.g. `[DLSSG] AdaMfgUnlock`, follow the comments for your card
+3. Rename `OptiScaler.dll` to **`dxgi.dll`** (Vulkan-only games: whichever of `winmm.dll` / `version.dll` the game loads)
 
-자세한 순서는 상자 안 설명서 [`dist/README.md`](dist/README.md)를 그대로 따른다.
+Full order follows the bundled guide [`dist/README.md`](dist/README.md).
 
-## <a id="susemi-notes"></a>주의
+## <a id="susemi-notes"></a>Notes
 
 > [!CAUTION]
-> - **온라인 게임에 쓰지 말 것** — 치트 감지·정지 위험 (원본 경고 그대로)
-> - **`nvngx_dlssnr.dll`은 동봉 안 됨** — NVIDIA 파일이라 재배포가 안 돼서 직접 구해 게임 폴더에 넣어야 한다
-> - **게임 폴더의 `version.dll`은 동봉 파일이 아님** — `OptiScaler.dll`의 이름을 바꾼 것이다
+> - **Do not use with online games** — anti-cheat / ban risk (same as upstream)
+> - **`nvngx_dlssnr.dll` is NOT bundled** — it's NVIDIA's file, bring your own copy into the game folder
+> - **`version.dll` in the game folder is NOT a bundled file** — it's `OptiScaler.dll` renamed
 
 <details>
-<summary><b>원본 OptiScaler 설명 (클릭해서 펼치기)</b> — 호환성 목록·Wiki는 원본 참조</summary>
+<summary><b>Original OptiScaler docs (click to expand)</b> — compatibility lists and Wiki are upstream's</summary>
 
 ## About
 

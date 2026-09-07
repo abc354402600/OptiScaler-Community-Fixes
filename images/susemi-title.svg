@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360">
+  <defs>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="sub" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a371f7"/>
+      <stop offset="1" stop-color="#6e40c9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="360" rx="24" fill="#0d1117"/>
+  <text x="600" y="170" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="118" font-weight="bold" letter-spacing="16" fill="#ffffff" filter="url(#glow)">OPTISCALER</text>
+  <rect x="380" y="212" width="440" height="3" fill="#30363d"/>
+  <text x="600" y="282" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="50" font-weight="bold" letter-spacing="20" fill="url(#sub)">SUSEMI EDITION</text>
+</svg>
