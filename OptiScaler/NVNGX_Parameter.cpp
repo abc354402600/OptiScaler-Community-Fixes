@@ -7,6 +7,7 @@
 #include <ankerl/unordered_dense.h>
 #include <misc/IdentifyGpu.h>
 #include <framegen/nvngx/Nvngx_FG.h>
+#include <framegen/dlssg/MfgUnlock.h>
 
 /// @brief Calculates the resolution scaling ratio override based on the provided quality level and current
 /// configuration.
@@ -809,9 +810,17 @@ void InitNGXParameters(NVSDK_NGX_Parameter* InParams, API api)
         InParams->Set(NVSDK_NGX_Parameter_FrameInterpolation_NeedsUpdatedDriver, 0);
         InParams->Set(NVSDK_NGX_Parameter_FrameInterpolation_FeatureInitResult, 1);
 
-        // Streamline handle the max interpolated frame count
+        // Streamline handle the max interpolated frame count. When the Ada MFG unlock landed on
+        // the native DLSSG backend, publish the opened ceiling instead of 1 so NGX consumers see
+        // the real capability. Replacement providers (FFX/Nukems/Combo) keep their own limits.
         int countMax =
             State::Instance().activeFgNvngx != FGNvngxReplacement::None ? Nvngx_FG::getMaxFakeFramesCount() : 1;
+        const bool nativeDlssgBackend = State::Instance().activeFgNvngx == FGNvngxReplacement::None;
+        if (nativeDlssgBackend) {
+            if (const auto unlockedMax = MfgUnlock::UnlockedMax();
+                unlockedMax > static_cast<unsigned int>(countMax))
+                countMax = static_cast<int>(unlockedMax);
+        }
         InParams->Set("DLSSG.MultiFrameCountMax", countMax);
 
         if (State::Instance().NVNGX_Engine == NVSDK_NGX_ENGINE_TYPE_UNREAL ||

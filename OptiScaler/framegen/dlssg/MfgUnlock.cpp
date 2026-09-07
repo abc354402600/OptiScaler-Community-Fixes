@@ -7,6 +7,10 @@
 #include <scanner/scanner.h>
 #include <misc/IdentifyGpu.h>
 
+#include <atomic>
+#include <map>
+#include <mutex>
+
 
 namespace
 {
@@ -72,7 +76,7 @@ uintptr_t FindDataBytes(HMODULE module, const uint8_t* needle, size_t length)
     return hits == 1 ? found : 0;
 }
 
-MfgUnlock::Status g_status {};
+// Aggregate state lives with the patch map below (g_aggregate).
 
 // The module's own file version, for the report. A signature that does not match is expected on a
 // version nobody has looked at, and the version is the one thing that makes such a report actionable.
@@ -327,47 +331,117 @@ void MfgUnlock::TryApply()
     if (!Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default())
         return;
 
-    // Latches once nvngx_dlssg.dll is present; before that every call rescans for it.
-    static bool snippetDone = false;
-
-    if (!snippetDone)
-    {
-        if (auto module = GetModuleHandleW(L"nvngx_dlssg.dll"); module != nullptr)
-        {
-            snippetDone = true;
-            g_status.ModuleFound = true;
-            g_status.SnippetVersion = ModuleVersion(module);
-
-            const bool advertise = PatchAdvertise(module);
-            const bool validate = PatchValidate(module);
-
-            g_status.AdvertiseMatched = advertise;
-            g_status.ValidateMatched = validate;
-
-            // Default on where it applies: below Blackwell the unlock alone produces frames that do
-            // not advance the picture, so the two belong together. dlssCapable is set from the same
-            // field, so an architecture that never reported leaves this off.
-            const auto& gpu = IdentifyGpu::getPrimaryGpu();
-            const bool preBlackwell = gpu.vendorId == VendorId::Nvidia &&
-                                      gpu.nvidiaArchInfo.architecture_id >= NV_GPU_ARCHITECTURE_TU100 &&
-                                      gpu.nvidiaArchInfo.architecture_id <= NV_GPU_ARCHITECTURE_AD100;
-
-            if (Config::Instance()->FGDLSSGAdaBlackwellKernels.value_or(preBlackwell))
-                g_status.KernelsRewritten = RewriteBlackwellKernels(module);
-
-            if (advertise && validate)
-                LOG_INFO("MFG unlock: nvngx_dlssg.dll patched for {} generated frames", kMaxGeneratedFrames);
-            else
-                LOG_WARN("MFG unlock: nvngx_dlssg.dll incomplete, advertise {}, validate {}", advertise, validate);
-        }
-    }
+    if (auto module = GetModuleHandleW(L"nvngx_dlssg.dll"); module != nullptr)
+        TryApply(module);
 }
 
-unsigned int MfgUnlock::UnlockedMax()
+static std::mutex g_patchMutex;
+static std::map<HMODULE, MfgUnlock::Status> g_patched; // completed attempts only
+static MfgUnlock::Status g_aggregate {};
+static std::atomic<unsigned int> g_publishedMax { 0 };
+static std::atomic<bool> g_anyModule { false };
+
+static std::wstring ModulePath(HMODULE module)
 {
-    const auto& status = LastStatus();
-
-    return status.AdvertiseMatched && status.ValidateMatched ? kMaxGeneratedFrames : 0;
+    wchar_t path[MAX_PATH] {};
+    return GetModuleFileNameW(module, path, MAX_PATH) != 0 ? std::wstring(path) : std::wstring(L"?");
 }
 
-const MfgUnlock::Status& MfgUnlock::LastStatus() { return g_status; }
+void MfgUnlock::TryApply(HMODULE module)
+{
+    if (!Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default() || module == nullptr)
+        return;
+
+    {
+        std::lock_guard<std::mutex> lock(g_patchMutex);
+        if (g_patched.contains(module))
+            return; // same handle already processed; concurrent duplicates converge below
+    }
+
+    // Everything below runs OUTSIDE the mutex: version/file APIs can pull in system DLLs on
+    // first use, and GPU discovery touches NVAPI. Holding our lock across those while a nested
+    // loader callback waits on it would invert the lock order (loader lock -> patch mutex here
+    // vs patch mutex -> loader lock there). Patch writes themselves are idempotent, so a raced
+    // duplicate attempt is redundant work, never corruption; the first finisher wins the insert.
+    const std::string version = ModuleVersion(module);
+    const auto pathA = wstring_to_string(ModulePath(module));
+
+    const bool advertise = PatchAdvertise(module);
+    const bool validate = PatchValidate(module);
+
+    // Default on where it applies: below Blackwell the unlock alone produces frames that do
+    // not advance the picture, so the two belong together. dlssCapable is set from the same
+    // field, so an architecture that never reported leaves this off.
+    const auto& gpu = IdentifyGpu::getPrimaryGpu();
+    const bool preBlackwell = gpu.vendorId == VendorId::Nvidia &&
+                              gpu.nvidiaArchInfo.architecture_id >= NV_GPU_ARCHITECTURE_TU100 &&
+                              gpu.nvidiaArchInfo.architecture_id <= NV_GPU_ARCHITECTURE_AD100;
+
+    unsigned int kernels = 0;
+    if (Config::Instance()->FGDLSSGAdaBlackwellKernels.value_or(preBlackwell))
+        kernels = RewriteBlackwellKernels(module);
+
+    if (advertise && validate)
+        LOG_INFO("MFG unlock: nvngx_dlssg.dll patched for {} generated frames ({})", kMaxGeneratedFrames,
+                 pathA);
+    else
+        LOG_WARN("MFG unlock: nvngx_dlssg.dll incomplete, advertise {}, validate {} ({})", advertise, validate,
+                 pathA);
+
+    std::lock_guard<std::mutex> lock(g_patchMutex);
+    if (g_patched.contains(module))
+        return; // lost the race; the winner's results stand
+
+    Status perModule {};
+    perModule.ModuleFound = true;
+    perModule.SnippetVersion = version;
+    perModule.AdvertiseMatched = advertise;
+    perModule.ValidateMatched = validate;
+    perModule.KernelsRewritten = kernels;
+    g_patched.emplace(module, perModule);
+
+    // Fail closed: the ceiling opens only when at least one copy is seen and EVERY seen copy
+    // is fully patched. A complete bin64 copy next to an unpatched DriverStore copy reports 0,
+    // because the serving copy cannot be identified and a split success is not a success.
+    // Known limitation: unload + address reuse is not tracked; a stale entry fails closed too.
+    bool allComplete = !g_patched.empty();
+    unsigned int bestKernels = 0;
+    unsigned int complete = 0;
+    for (const auto& [handle, st] : g_patched)
+    {
+        const bool whole = st.AdvertiseMatched && st.ValidateMatched;
+        allComplete = allComplete && whole;
+        if (whole)
+            ++complete;
+        else if (g_aggregate.UnmatchedVersion.empty() && !st.SnippetVersion.empty())
+            g_aggregate.UnmatchedVersion = st.SnippetVersion;
+        if (st.KernelsRewritten > bestKernels)
+            bestKernels = st.KernelsRewritten;
+        if (g_aggregate.SnippetVersion.empty() && !st.SnippetVersion.empty())
+            g_aggregate.SnippetVersion = st.SnippetVersion;
+    }
+    g_aggregate.ModuleFound = true;
+    g_aggregate.AdvertiseMatched = allComplete;
+    g_aggregate.ValidateMatched = allComplete;
+    g_aggregate.KernelsRewritten = bestKernels;
+    g_aggregate.CopiesSeen = static_cast<unsigned int>(g_patched.size());
+    g_aggregate.CopiesComplete = complete;
+    g_anyModule.store(true, std::memory_order_release);
+    g_publishedMax.store(allComplete ? kMaxGeneratedFrames : 0, std::memory_order_release);
+}
+
+size_t MfgUnlock::PatchedModuleCount()
+{
+    std::lock_guard<std::mutex> lock(g_patchMutex);
+    return g_patched.size();
+}
+
+unsigned int MfgUnlock::UnlockedMax() { return g_publishedMax.load(std::memory_order_acquire); }
+
+bool MfgUnlock::AnyModuleSeen() { return g_anyModule.load(std::memory_order_acquire); }
+
+MfgUnlock::Status MfgUnlock::LastStatus()
+{
+    std::lock_guard<std::mutex> lock(g_patchMutex);
+    return g_aggregate; // by value: a coherent snapshot, never a mutable shared reference
+}

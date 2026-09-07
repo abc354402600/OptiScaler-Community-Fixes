@@ -46,13 +46,27 @@ struct Status
     bool ValidateMatched = false;
     unsigned int KernelsRewritten = 0;
     std::string SnippetVersion; // file version of nvngx_dlssg.dll, empty if it could not be read
+    unsigned int CopiesSeen = 0;     // distinct module handles processed
+    unsigned int CopiesComplete = 0; // ...of which fully patched (both gates)
+    std::string UnmatchedVersion;    // version of the first copy whose signatures missed, for reports
 };
 
-const Status& LastStatus();
+// Coherent snapshot of the aggregate state (by value, safe to read from any thread).
+// AdvertiseMatched/ValidateMatched are joint: both true only when every seen copy is complete.
+Status LastStatus();
 
-// Applies the patches once per process. Silent and harmless when the config option is off, when
-// nvngx_dlssg.dll is not loaded, or when a signature does not match exactly once.
+// True once any nvngx_dlssg.dll copy has been processed (lock-free, for hot paths).
+bool AnyModuleSeen();
+
+// Applies the patches to every loaded nvngx_dlssg.dll copy, once per module. Silent and harmless
+// when the config option is off, when nvngx_dlssg.dll is not loaded, or when a signature does not
+// match exactly once. The parameterless form patches whatever GetModuleHandleW finds; prefer the
+// handle form at load sites so a second copy (e.g. DriverStore) is not missed after the first.
 void TryApply();
+void TryApply(HMODULE module);
+
+// How many distinct module handles have completed patching (0 when none seen yet).
+size_t PatchedModuleCount();
 
 // The generated frame ceiling the patches opened, or 0 when they did not land.
 unsigned int UnlockedMax();

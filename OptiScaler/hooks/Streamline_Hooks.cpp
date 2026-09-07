@@ -1149,10 +1149,10 @@ sl::Result StreamlineHooks::hkslDLSSGSetOptions(const sl::ViewportHandle& viewpo
         MfgUnlock::TryApply();
 
         // nvngx_dlssg.dll can load after this runs, and the ceiling read before it does is Ada's
-        // 1. Caching that holds it for the session and clamps the override to it. ModuleFound
+        // 1. Caching that holds it for the session and clamps the override to it. AnyModuleSeen
         // means the patches have been attempted, so from there the answer is final either way.
         const bool unlockPending =
-            Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default() && !MfgUnlock::LastStatus().ModuleFound;
+            Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default() && !MfgUnlock::AnyModuleSeen();
 
         // Populate dlssgMfgMax once
         if (!state.dlssgMfgMax.has_value() && !unlockPending)
@@ -1274,7 +1274,7 @@ sl::Result StreamlineHooks::hkslDLSSGGetState(const sl::ViewportHandle& viewport
     {
         // Provisional until the snippet has been seen. See the note in hkslDLSSGSetOptions.
         const bool unlockPending =
-            Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default() && !MfgUnlock::LastStatus().ModuleFound;
+            Config::Instance()->FGDLSSGAdaMfgUnlock.value_or_default() && !MfgUnlock::AnyModuleSeen();
 
         if (!optiState.dlssgMfgMax.has_value() && !unlockPending)
         {
@@ -1326,8 +1326,11 @@ sl::Result StreamlineHooks::hkslDLSSGGetState(const sl::ViewportHandle& viewport
             state.numFramesActuallyPresented = 1;
         }
 
-        // Struct version 1 ends at 56 bytes, ahead of this field.
-        if (originalStructVersion >= 2)
+        // Struct version 1 ends at 56 bytes, ahead of this field. Never clobber an unlocked
+        // ceiling on the native backend: when the MFG patch landed, the game must see the
+        // opened maximum. Replacement providers (FFX/Nukems/Combo) keep the old behavior.
+        const bool nativeDlssgBackend = optiState.activeFgNvngx == FGNvngxReplacement::None;
+        if (originalStructVersion >= 2 && (MfgUnlock::UnlockedMax() == 0 || !nativeDlssgBackend))
             state.numFramesToGenerateMax = 1;
 
         LOG_DEBUG("Status: {}, numFramesActuallyPresented: {}", magic_enum::enum_name(state.status),

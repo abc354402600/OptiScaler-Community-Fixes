@@ -119,7 +119,7 @@ HMODULE LibraryLoadHooks::LoadLibraryCheckW(std::wstring libName, LPCWSTR lpLibF
         auto dlssgSnippet = NtdllProxy::LoadLibraryExW_Ldr(lpLibFullPath, NULL, 0);
 
         if (dlssgSnippet != nullptr)
-            MfgUnlock::TryApply();
+            MfgUnlock::TryApply(dlssgSnippet);
         else
             LOG_ERROR("Trying to load dll as nvngx_dlssg: {}", libNameA);
 
