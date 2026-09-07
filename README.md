@@ -1,20 +1,12 @@
 <div align="center">
-
-  ![Logo](https://github.com/user-attachments/assets/c7dad5da-0b29-4710-8a57-b58e4e407abd)
-
-</div>
-<hr />
-<br />
-<div align="center">
   <img src="images/susemi-title.svg" alt="OptiScaler Susemi Edition" width="800" />
   <br />
-  <sub>Personal fork — Korean UI · MFG unlock · 30-series FG bundle</sub>
+  <sub>Personal fork — Korean UI · MFG unlock · 20/30-series FG bundle</sub>
 </div>
 <br />
 
 ## Table of Contents
 
-**0.** [**Susemi Edition — what's changed**](#susemi-diff) · [**Download**](#susemi-download) · [**Install**](#susemi-install) · [**Notes**](#susemi-notes)
 **1.** [**About**](#about)  
 **2.** [**How it works?**](#how-it-works)  
 **3.** [**Supported APIs and Upscalers**](#which-apis-and-upscalers-are-supported)  
@@ -28,7 +20,7 @@
 
 # OptiScaler Susemi Edition
 
-Korean UI + MFG unlock + 30-series FG bundle. Get **v7**.
+Korean UI + MFG unlock + 20/30-series FG bundle. Get **v7**.
 
 [![v7 release](https://img.shields.io/badge/Download-v7-green?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/tag/v7)
 [![Korean build](https://img.shields.io/badge/Download-KO-blue?style=for-the-badge&logo=github&logoColor=white)](https://github.com/grim-susemi/OptiScaler-Susemi/releases/download/v7/OptiScaler-current-ko.zip)
@@ -44,7 +36,7 @@ Korean UI + MFG unlock + 30-series FG bundle. Get **v7**.
 - **Korean UI** — overlay + tooltips in Korean, per-key **Unbind** button
 - **MFG unlock** — frame-generation ratio unlock for 40-series cards. Fail-closed + active indicator
 - **NR 200% restored** — neural rendering 200% model + D3D12 inspection hold
-- **30-series FG bundle** — DLSS / Streamline / FG files bundled in the zip, extract and go
+- **20/30-series FG bundle** — DLSS / Streamline / FG files bundled in the zip, extract and go
 - **English build included** — same content as a separate EN zip
 
 ## <a id="susemi-download"></a>Download
@@ -64,7 +56,6 @@ Full order follows the bundled guide [`dist/README.md`](dist/README.md).
 
 > [!CAUTION]
 > - **Do not use with online games** — anti-cheat / ban risk (same as upstream)
-> - **`nvngx_dlssnr.dll` is NOT bundled** — it's NVIDIA's file, bring your own copy into the game folder
 > - **`version.dll` in the game folder is NOT a bundled file** — it's `OptiScaler.dll` renamed
 
 <details>
