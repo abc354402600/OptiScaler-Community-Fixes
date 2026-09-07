@@ -3181,15 +3181,15 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     inputOptions = {
         { FGInput::NoFG, "None" },
         { FGInput::Upscaler, "OptiFG (Upscaler)",
-            "Upscaler must be enabled\n\nCan be used with any FG Output, but might be imperfect with some\nTo prevent UI glitching, HUDfix required" },
+            "업스케일러가 켜져 있어야 함\n\n모든 FG 출력과 사용 가능, 일부는 불완전할 수 있음\nUI 깨짐 방지용 HUDfix 필요" },
         { FGInput::DLSSG, "DLSSG via Streamline",
-            "Can be used with any FG Output\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\n\nLimited to games that use Streamline" },
+            "모든 FG 출력과 사용 가능\n\n게임 설정에서 DLSS-FG를 켜야 함\n기본 HUDless 지원\n\nStreamline 사용 게임 전용" },
         { FGInput::NvngxFG, "DLSSG via Nvngx",
-            "Limited to variants of FSR FG\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\nUses Streamline swapchain for pacing" },
+            "FSR FG 계열 전용\n\n게임 설정에서 DLSS-FG를 켜야 함\n기본 HUDless 지원\nStreamline 스왑체인으로 페이싱" },
         { FGInput::FSRFG, "FSR 3.1 FG",
-            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
+            "모든 FG 출력과 사용 가능\n\n게임 설정에서 FSR-FG를 켜야 함\n기본 HUDless 지원" },
         { FGInput::FSRFG30, "FSR 3.0 FG",
-            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
+            "모든 FG 출력과 사용 가능\n\n게임 설정에서 FSR-FG를 켜야 함\n기본 HUDless 지원" },
         { FGInput::XeFG, "XeFG" }
     };
 
@@ -3245,9 +3245,9 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
     outputOptions = {
         { FGOutput::NoFG, "None" },
-        { FGOutput::FSRFG, "FSR FG", "FSR3/4-FG, RDNA4 autoupgrades to FSR4-FG\n\nFSR4-FG sometimes better/worse than XeFG" },
-        { FGOutput::DLSSG, "DLSSG", "DLSSG output\ncan be used in conjuction with Nukem's for example" },
-        { FGOutput::XeFG, "XeFG", "XeFG - heaviest, but best universal FG\n\nXeFG 3 overall deals best with HUD\n\nEnable UI Composition if HUD ghosting" },
+        { FGOutput::FSRFG, "FSR FG", "FSR3/4-FG, RDNA4는 자동으로 FSR4-FG\n\nFSR4-FG가 XeFG보다 낫거나 못할 때가 있음" },
+        { FGOutput::DLSSG, "DLSSG", "DLSSG 출력\nNukem 등과 함께 사용 가능" },
+        { FGOutput::XeFG, "XeFG", "XeFG - 가장 무겁지만 가장 범용인 FG\n\nXeFG 3은 HUD 처리가 전반적으로 가장 좋음\n\nHUD 잔상 있으면 UI Composition 켜기" },
     };
 
     // clang-format on
@@ -3261,7 +3261,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     if (!supportsDlssg && hasDlssgReplacement)
     {
         outputOptions[dlssgOutputIndex].tooltip =
-            "No real DLSSG, unsupported hardware\nOnly Nvngx FG replacements available";
+            "진짜 DLSSG 없음, 하드웨어 미지원\nNvngx FG 교체 백엔드만 사용 가능";
     }
 
     outputOptions[dlssgOutputIndex].set_disabled(state.swapchainApi == API::Vulkan, "Unsupported API");
@@ -3316,11 +3316,11 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     // clang-format off
 
     nvngxOptions = {
-        { FGNvngxReplacement::None, "None (Real DLSSG)", "Real DLSSG, For RTX 40xx and above"},
+        { FGNvngxReplacement::None, "None (Real DLSSG)", "진짜 DLSSG, RTX 40xx 이상"},
         { FGNvngxReplacement::Nukems, "Nukem's", "FSR 3 FG" },
         { FGNvngxReplacement::Arturs, "Enabler", "FSR 3 MFG" },
-        { FGNvngxReplacement::FFX, "FSR 3/4 FG", "FSR 3/4 FG using the FFX" },
-        { FGNvngxReplacement::Combo, "FFX + Enabler", "FFX for the middle fake frame, Enabler for the rest\n\n"
+        { FGNvngxReplacement::FFX, "FSR 3/4 FG", "FFX 쓰는 FSR 3/4 FG" },
+        { FGNvngxReplacement::Combo, "FFX + Enabler", "중간 가짜 프레임은 FFX, 나머지는 Enabler\n\n"
                                                       "2x - FFX\n3x - Enabler\n4x - FFX + Enabler\n5x - Enabler\n6x - FFX + Enabler" },
     };
 
@@ -3378,8 +3378,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             ImGui::TableNextColumn();
 
             PopulateCombo("FG Input", config->FGInput, inputOptions);
-            ShowTooltip("The data source to be used for FG\n"
-                        "The native FG which the game supports");
+            ShowTooltip("FG에 쓸 데이터 소스\n"
+                        "게임이 원래 지원하는 네이티브 FG");
 
             ImGui::TableNextColumn();
 
@@ -3387,12 +3387,12 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             {
                 // Disable None?
                 PopulateCombo("FG Nvngx", config->FGNvngxReplacement, nvngxOptions);
-                ShowTooltip("What backend to use instead of the real DLSSG");
+                ShowTooltip("진짜 DLSSG 대신 쓸 백엔드");
             }
             else
             {
                 PopulateCombo("FG Output", config->FGOutput, outputOptions);
-                ShowTooltip("The FG that you will actually be using");
+                ShowTooltip("실제로 쓰게 될 FG");
             }
 
             ImGui::EndTable();
@@ -3402,7 +3402,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         if (showNvngxFgDowndown)
         {
             PopulateCombo("FG Nvngx Replacement", config->FGNvngxReplacement, nvngxOptions);
-            ShowTooltip("What backend to use instead of the real DLSSG");
+            ShowTooltip("진짜 DLSSG 대신 쓸 백엔드");
         }
 
         // Try to avoid having None selected when the gpu doesn't support DLSSG + some fallbacks
@@ -3542,8 +3542,17 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                 {
                     const char* version = mfg.SnippetVersion.empty() ? "version unknown" : mfg.SnippetVersion.c_str();
 
-                    if (mfg.AdvertiseMatched && mfg.ValidateMatched)
-                        ImGui::TextColored(good, "nvngx_dlssg %s: both gates patched.", version);
+                    if (mfg.CopiesComplete > 0)
+                    {
+                        // Any fully patched copy means MFG is up; copies with unknown
+                        // signatures (e.g. the driver store) are a log-line matter, not
+                        // something the overlay should cry about.
+                        if (mfg.CopiesSeen > 1)
+                            ImGui::TextColored(good, "nvngx_dlssg %s: MFG active (%u copies patched).",
+                                               version, mfg.CopiesComplete);
+                        else
+                            ImGui::TextColored(good, "nvngx_dlssg %s: both gates patched.", version);
+                    }
                     else
                         ImGui::TextColored(bad,
                                            "nvngx_dlssg %s: not recognised (advertise %s, validate %s)."
