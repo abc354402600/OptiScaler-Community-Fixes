@@ -448,7 +448,7 @@ class Keybind
 
         ImGui::SameLine();
         ImGui::PushID(id + 100);
-        if (ImGui::Button("해제")) // Backspace와 동일, Unbound(-1) 저장
+        if (ImGui::Button("Unbind")) // Same as Backspace, stores Unbound(-1)
         {
             configKey = UnboundKey;
         }
@@ -2686,7 +2686,7 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
 
                     ImGui::EndCombo();
                 }
-                ShowHelpMarker("큰 효과는 없을 가능성이 높습니다");
+                ShowHelpMarker("Likely doesn't do much");
 
                 if (bool dbg = state.xessDebug; ImGui::Checkbox("Dump (Shift+Del)", &dbg))
                     state.xessDebug = dbg;
@@ -2739,7 +2739,7 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                 }
                 ImGui::PopItemWidth();
 
-                ShowHelpMarker("FFX SDK가 보고한 업스케일러 목록");
+                ShowHelpMarker("List of upscalers reported by FFX SDK");
 
                 ImGui::SameLine(0.0f, 6.0f);
 
@@ -2793,9 +2793,9 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                         state.newBackend = currentBackend;
                         MARK_ALL_BACKENDS_CHANGED();
                     }
-                    ShowHelpMarker("게임이 사용하는 입력 색 공간을 선택합니다."
-                                   ""
-                                   "Non-Linear / sRGB: FSR4 업스케일링 품질이 좋아질 수 있지만 고스팅이 늘어날 수 있습니다.\n\nPQ: 가장 드물며, 고스팅이 늘어나고 조명이 깨질 수 있습니다.");
+                    ShowHelpMarker("Select the input color space that the game uses.\n"
+                                   "Non-Linear / sRGB: Might improve FSR4 upscaling quality, might increase ghosting.\n"
+                                   "PQ: Rarest, might increase ghosting and break lights.");
 
                     // FSR 4 Presets
                     const char* presets[] = { "Default",  "Preset 0", "Preset 1", "Preset 2",
@@ -2816,14 +2816,14 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                         state.newBackend = currentBackend;
                         MARK_ALL_BACKENDS_CHANGED();
                     }
-                    ShowHelpMarker("각 FSR4 내부 프리셋은 특정 해상도에 맞춰 조정되어 있습니다."
-                                   ""
-                                   "FSR4 프리셋을 선택한다고 게임 내"
-                                   "업스케일러 프리셋이 바뀌지는 않습니다!!!"
-                                   ""
-                                   ""
-                                   "프리셋 0: FSR Native AA용"
-                                   "\n프리셋 1: Quality/Ultra Quality용\n\n프리셋 2: Balanced용\n\n프리셋 3: Performance용\n\n프리셋 4: DRS용\n\n프리셋 5: Ultra Performance용");
+                    ShowHelpMarker("Each internal FSR4 preset is tuned for a specific resolution.\n"
+                                   "Selecting an FSR4 preset won't change the in-game\nupscaler preset!!!\n\n"
+                                   "Preset 0 is meant for FSR Native AA\n"
+                                   "Preset 1 is meant for Quality/Ultra Quality\n"
+                                   "Preset 2 is meant for Balanced\n"
+                                   "Preset 3 is meant for Performance\n"
+                                   "Preset 4 is meant for DRS\n"
+                                   "Preset 5 is meant for Ultra Performance");
 
                     // Display the active preset right next to the combo box instead of using a table
                     ImGui::SameLine();
@@ -2854,18 +2854,18 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
 
                     if (majorFsrVersion > 3)
                     {
-                        ShowHelpMarker("왼쪽 위: 팽창된 모션 벡터(Dilated Motion Vectors)"
-                                       "\n오른쪽 위: 예측 블렌드 계수(Predicted Blend Factor)");
+                        ShowHelpMarker("Top left: Dilated Motion Vectors\n"
+                                       "Top right: Predicted Blend Factor");
                     }
                     else
                     {
-                        ShowHelpMarker("왼쪽 위: 팽창된 모션 벡터(Dilated Motion Vectors)"
-                                       ""
-                                       "가운데 위: 보호 영역(Protected Areas)"
-                                       ""
-                                       "오른쪽 위: 팽창된 깊이(Dilated Depth)"
-                                       ""
-                                       "가운데: 업스케일된 프레임\n\n왼쪽 아래: 디스클루전 마스크(Disocclusion mask)\n\n가운데 아래: 반응성(Reactiveness)\n\n오른쪽 아래: 디테일 보호 해제(Detail Protection Takedown)");
+                        ShowHelpMarker("Top left: Dilated Motion Vectors\n"
+                                       "Top middle: Protected Areas\n"
+                                       "Top right: Dilated Depth\n"
+                                       "Middle: Upscaled frame\n"
+                                       "Bottom left: Disocclusion mask\n"
+                                       "Bottom middle: Reactiveness\n"
+                                       "Bottom right: Detail Protection Takedown");
                     }
 
                     if (majorFsrVersion > 3)
@@ -2878,8 +2878,8 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                             config->Fsr4EnableWatermark = fsr4wm;
                         }
 
-                        ShowHelpMarker("이 옵션을 변경한 후에는 설정 저장을 해 주세요."
-                                       "\n다음 실행 때 적용됩니다.");
+                        ShowHelpMarker("After changing this option, please Save Settings.\n"
+                                       "It will be applied on next launch.");
                     }
                 }
 
@@ -2961,9 +2961,9 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                         if (ImGui::SliderFloat("Velocity Factor", &velocity, 0.00f, 1.0f, "%.2f"))
                             config->FsrVelocity = velocity;
 
-                        ShowHelpMarker("0.0f 값은 밝은 픽셀의 시간적 안정성을 개선할 수 있습니다"
-                                       ""
-                                       "낮은 값은 더 안정적이지만 고스팅이 생깁니다\n\n높은 값은 픽셀 느낌이 강해지지만 고스팅은 줄어듭니다");
+                        ShowHelpMarker("Value of 0.0f can improve temporal stability of bright pixels\n"
+                                       "Lower values are more stable with ghosting\n"
+                                       "Higher values are more pixelly, but less ghosting");
 
                         if (currentFeature->Version() >= feature_version { 3, 1, 4 })
                         {
@@ -2972,37 +2972,37 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                             if (ImGui::SliderFloat("Reactive Scale", &reactiveScale, 0.0f, 1.0f, "%.3f"))
                                 config->FsrReactiveScale = reactiveScale;
 
-                            ShowHelpMarker("개발용 옵션입니다. 리액티브 마스크에 더 큰 값을 쓰면"
-                                           "\n고스팅이 줄어드는지 확인해 볼 수 있습니다.");
+                            ShowHelpMarker("Meant for development purpose to test if\n"
+                                           "writing a larger value to reactive mask, reduces ghosting.");
 
                             // Shading Scale
                             float shadingScale = config->FsrShadingScale.value_or_default();
                             if (ImGui::SliderFloat("Shading Scale", &shadingScale, 0.0f, 1.0f, "%.3f"))
                                 config->FsrShadingScale = shadingScale;
 
-                            ShowHelpMarker("이 값을 올리면 FSR3.1이 계산한 셰이딩이 확대됩니다"
-                                           "\n읽기 시점에 값을 변경하면 반응성이 더 높아집니다.");
+                            ShowHelpMarker("Increasing this scales FSR3.1 computed shading\n"
+                                           "change value at read to have higher reactiveness.");
 
                             // Accumulation Added Per Frame
                             float accAddPerFrame = config->FsrAccAddPerFrame.value_or_default();
                             if (ImGui::SliderFloat("Acc. Added Per Frame", &accAddPerFrame, 0.0f, 1.0f, "%.3f"))
                                 config->FsrAccAddPerFrame = accAddPerFrame;
 
-                            ShowHelpMarker("프레임마다 추가되는 누적량에 해당합니다. 디스오클루전이 발생했거나"
-                                           ""
-                                           "리액티브 마스크 값이 0.0f보다 큰 픽셀 좌표에 적용됩니다. 이 값을 낮추고"
-                                           ""
-                                           "고스팅되는 개체(모션 벡터 없음)를 1.0f에 가까운 값으로"
-                                           "\n리액티브 마스크에 그리면 시간적 고스팅을 줄일 수 있습니다\n\n이 값을 낮추면 얇은 특징 픽셀이\n\n더 많이 깜빡일 수 있습니다.");
+                            ShowHelpMarker("Corresponds to amount of accumulation added per frame\n"
+                                           "at pixel coordinate where disocclusion occured or when\n"
+                                           "reactive mask value is > 0.0f. Decreasing this and \n"
+                                           "drawing the ghosting object (IE no mv) to reactive mask \n"
+                                           "with value close to 1.0f can decrease temporal ghosting.\n"
+                                           "Decreasing this could result in more thin feature pixels flickering.");
 
                             // Min Disocclusion Accumulation
                             float minDisOccAcc = config->FsrMinDisOccAcc.value_or_default();
                             if (ImGui::SliderFloat("Min. Disocclusion Acc.", &minDisOccAcc, -1.0f, 1.0f, "%.3f"))
                                 config->FsrMinDisOccAcc = minDisOccAcc;
 
-                            ShowHelpMarker("이 값을 올리면 서로 자주 가려지는 흔들리는 얇은 개체 주변에서"
-                                           ""
-                                           "흰색 픽셀이 깜빡이는 현상을 줄일 수 있습니다. 너무 높은 값은 고스팅을\n\n키울 수 있습니다.");
+                            ShowHelpMarker("Increasing this value may reduce white pixel temporal\n"
+                                           "flickering around swaying thin objects that are disoccluding \n"
+                                           "one another often. Too high value may increase ghosting.");
                         }
 
                         ImGui::PopItemWidth();
@@ -3031,8 +3031,8 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
             if (overridden)
             {
                 ImGui::TextColored(toneMapColor(ImVec4(1.f, 0.8f, 0.f, 1.f)), "Presets are overridden externally");
-                ShowHelpMarker("보통 Nvidia App이나 Nvidia Inspector 같은 도구를"
-                               "\n사용할 때 발생합니다");
+                ShowHelpMarker("This usually happens due to using tools\n"
+                               "such as Nvidia App or Nvidia Inspector");
                 // ImGui::Text("Selecting setting below will disable that external override\n"
                 //             "but you need to Save Settings and restart the game");
 
@@ -3045,9 +3045,9 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                     ImGui::Checkbox("Render Presets Override", &pOverride))
                     config->DLSSDRenderPresetOverride = pOverride;
 
-                ShowHelpMarker("각 렌더 프리셋에는 장점과 단점이 있습니다"
-                               ""
-                               "이미지 품질을 개선하려면 오버라이드를 사용해 보세요\n\n활성화/비활성화 후 적용을 눌러 주세요");
+                ShowHelpMarker("Each render preset has it strengths and weaknesses\n"
+                               "Override to potentially improve image quality\n"
+                               "Press apply after enable/disable");
 
                 /*
                 auto currentPresetIndex = GetPresetIndex(currentFeature, true);
@@ -3072,9 +3072,9 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                     ImGui::Checkbox("Render Presets Override", &pOverride))
                     config->RenderPresetOverride = pOverride;
 
-                ShowHelpMarker("각 렌더 프리셋에는 장점과 단점이 있습니다"
-                               ""
-                               "이미지 품질을 개선하려면 오버라이드를 사용해 보세요\n\n활성화/비활성화 후 적용(Apply)을 눌러 주세요");
+                ShowHelpMarker("Each render preset has it strengths and weaknesses\n"
+                               "Override to potentially improve image quality\n"
+                               "Press Apply after enable/disable");
 
                 /*
                 auto currentPresetIndex = GetPresetIndex(currentFeature, false);
@@ -3128,9 +3128,9 @@ void MenuCommon::RenderActiveUpscalerSettings(RenderMenuContext& ctx)
                 if (ImGui::Checkbox("Use Generic App Id with DLSS", &appIdOverride))
                     config->UseGenericAppIdWithDlss = appIdOverride;
 
-                ShowHelpMarker("NGX에 일반 appid를 사용합니다"
-                               ""
-                               "특정 게임에서 OptiScaler 프리셋 오버라이드가 작동하지 않는 문제를 해결합니다\n\n게임 재시작이 필요합니다");
+                ShowHelpMarker("Use generic appid with NGX\n"
+                               "Fixes OptiScaler preset override not working with certain games\n"
+                               "Requires a game restart");
 
                 ImGui::BeginDisabled(!config->RenderPresetOverride.value_or_default() || overridden);
                 ImGui::Spacing();
@@ -3181,15 +3181,15 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     inputOptions = {
         { FGInput::NoFG, "None" },
         { FGInput::Upscaler, "OptiFG (Upscaler)",
-            "업스케일러가 켜져 있어야 함\n\n모든 FG 출력과 사용 가능, 일부는 불완전할 수 있음\nUI 깨짐 방지용 HUDfix 필요" },
+            "Upscaler must be enabled\n\nCan be used with any FG Output, but might be imperfect with some\nTo prevent UI glitching, HUDfix required" },
         { FGInput::DLSSG, "DLSSG via Streamline",
-            "모든 FG 출력과 사용 가능\n\n게임 설정에서 DLSS-FG를 켜야 함\n기본 HUDless 지원\n\nStreamline 사용 게임 전용" },
+            "Can be used with any FG Output\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\n\nLimited to games that use Streamline" },
         { FGInput::NvngxFG, "DLSSG via Nvngx",
-            "FSR FG 계열 전용\n\n게임 설정에서 DLSS-FG를 켜야 함\n기본 HUDless 지원\nStreamline 스왑체인으로 페이싱" },
+            "Limited to variants of FSR FG\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\nUses Streamline swapchain for pacing" },
         { FGInput::FSRFG, "FSR 3.1 FG",
-            "모든 FG 출력과 사용 가능\n\n게임 설정에서 FSR-FG를 켜야 함\n기본 HUDless 지원" },
+            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
         { FGInput::FSRFG30, "FSR 3.0 FG",
-            "모든 FG 출력과 사용 가능\n\n게임 설정에서 FSR-FG를 켜야 함\n기본 HUDless 지원" },
+            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
         { FGInput::XeFG, "XeFG" }
     };
 
@@ -3245,9 +3245,9 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
     outputOptions = {
         { FGOutput::NoFG, "None" },
-        { FGOutput::FSRFG, "FSR FG", "FSR3/4-FG, RDNA4는 자동으로 FSR4-FG\n\nFSR4-FG가 XeFG보다 낫거나 못할 때가 있음" },
-        { FGOutput::DLSSG, "DLSSG", "DLSSG 출력\nNukem 등과 함께 사용 가능" },
-        { FGOutput::XeFG, "XeFG", "XeFG - 가장 무겁지만 가장 범용인 FG\n\nXeFG 3은 HUD 처리가 전반적으로 가장 좋음\n\nHUD 잔상 있으면 UI Composition 켜기" },
+        { FGOutput::FSRFG, "FSR FG", "FSR3/4-FG, RDNA4 autoupgrades to FSR4-FG\n\nFSR4-FG sometimes better/worse than XeFG" },
+        { FGOutput::DLSSG, "DLSSG", "DLSSG output\ncan be used in conjuction with Nukem's for example" },
+        { FGOutput::XeFG, "XeFG", "XeFG - heaviest, but best universal FG\n\nXeFG 3 overall deals best with HUD\n\nEnable UI Composition if HUD ghosting" },
     };
 
     // clang-format on
@@ -3261,7 +3261,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     if (!supportsDlssg && hasDlssgReplacement)
     {
         outputOptions[dlssgOutputIndex].tooltip =
-            "진짜 DLSSG 없음, 하드웨어 미지원\nNvngx FG 교체 백엔드만 사용 가능";
+            "No real DLSSG, unsupported hardware\nOnly Nvngx FG replacements available";
     }
 
     outputOptions[dlssgOutputIndex].set_disabled(state.swapchainApi == API::Vulkan, "Unsupported API");
@@ -3316,11 +3316,11 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     // clang-format off
 
     nvngxOptions = {
-        { FGNvngxReplacement::None, "None (Real DLSSG)", "진짜 DLSSG, RTX 40xx 이상"},
+        { FGNvngxReplacement::None, "None (Real DLSSG)", "Real DLSSG, For RTX 40xx and above"},
         { FGNvngxReplacement::Nukems, "Nukem's", "FSR 3 FG" },
         { FGNvngxReplacement::Arturs, "Enabler", "FSR 3 MFG" },
-        { FGNvngxReplacement::FFX, "FSR 3/4 FG", "FFX 쓰는 FSR 3/4 FG" },
-        { FGNvngxReplacement::Combo, "FFX + Enabler", "중간 가짜 프레임은 FFX, 나머지는 Enabler\n\n"
+        { FGNvngxReplacement::FFX, "FSR 3/4 FG", "FSR 3/4 FG using the FFX" },
+        { FGNvngxReplacement::Combo, "FFX + Enabler", "FFX for the middle fake frame, Enabler for the rest\n\n"
                                                       "2x - FFX\n3x - Enabler\n4x - FFX + Enabler\n5x - Enabler\n6x - FFX + Enabler" },
     };
 
@@ -3378,8 +3378,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             ImGui::TableNextColumn();
 
             PopulateCombo("FG Input", config->FGInput, inputOptions);
-            ShowTooltip("FG에 쓸 데이터 소스\n"
-                        "게임이 원래 지원하는 네이티브 FG");
+            ShowTooltip("The data source to be used for FG\n"
+                        "The native FG which the game supports");
 
             ImGui::TableNextColumn();
 
@@ -3387,12 +3387,12 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             {
                 // Disable None?
                 PopulateCombo("FG Nvngx", config->FGNvngxReplacement, nvngxOptions);
-                ShowTooltip("진짜 DLSSG 대신 쓸 백엔드");
+                ShowTooltip("What backend to use instead of the real DLSSG");
             }
             else
             {
                 PopulateCombo("FG Output", config->FGOutput, outputOptions);
-                ShowTooltip("실제로 쓰게 될 FG");
+                ShowTooltip("The FG that you will actually be using");
             }
 
             ImGui::EndTable();
@@ -3402,7 +3402,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         if (showNvngxFgDowndown)
         {
             PopulateCombo("FG Nvngx Replacement", config->FGNvngxReplacement, nvngxOptions);
-            ShowTooltip("진짜 DLSSG 대신 쓸 백엔드");
+            ShowTooltip("What backend to use instead of the real DLSSG");
         }
 
         // Try to avoid having None selected when the gpu doesn't support DLSSG + some fallbacks
@@ -3502,11 +3502,11 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                 }
             }
 
-            SeparatorWithHelpMarker("MFG Unlock (RTX",
-                                      "40) nvngx_dlssg.dll이 허용하는 생성 프레임 최대치와 Streamline이 보고하는 개수를"
-                                      "올려서, 위의 비율 옵션으로 Blackwell 이전 카드에서도 최대 6X까지 사용할"
-                                      "수 있습니다. 메모리에서 패치되며 디스크의 파일은 건드리지 않습니다. 다음 게임"
-                                      "시작부터 적용됩니다. 공식 문서화되지 않았으며 NVIDIA가 지원하지 않습니다.");
+            SeparatorWithHelpMarker("MFG Unlock (RTX 40)",
+                                      "Raises the generated frame maximum in nvngx_dlssg.dll and in the count "
+                                      "Streamline reports, so the ratio above offers up to 6X on pre-Blackwell "
+                                      "cards. Patched in memory; the file on disk is not touched. Takes effect "
+                                      "on the next game start. Undocumented and unsupported by NVIDIA.");
 
             bool adaUnlock = config->FGDLSSGAdaMfgUnlock.value_or_default();
 
@@ -3525,7 +3525,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             //
             // The signatures carry the shape of the code they patch, so a module nobody has looked at
             // is not recognised -- the expected outcome on an unexamined version, not a fault. Saying
-            // which version that was is the difference between a report that can be acted on and "it\n// does not work".
+            // which version that was is the difference between a report that can be acted on and "it
+            // does not work".
             if (adaUnlock)
             {
                 const auto& mfg = MfgUnlock::LastStatus();
@@ -3572,7 +3573,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             static float fpsTarget = config->FGDLSSGFramerateTargetDMFG.value_or_default();
             ImGui::SliderFloat("DMFG FPS Target", &fpsTarget, 0, 200, "%.0f");
 
-            ShowHelpMarker("활성 상태의 제한값이 0이면 디스플레이 주사율을 자동으로 감지합니다");
+            ShowHelpMarker("An active limit of 0 means auto-detect the display refresh rate");
 
             if (ImGui::Button("Apply Target"))
             {
@@ -3598,8 +3599,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             fgOutput)
         {
             ImGui::Checkbox("Show Detected UI", &state.fgHudlessCompare);
-            ShowHelpMarker("최종 이미지와 비교하려면 HUDless 텍스처가 필요합니다"
-                           "\nUI 요소, 그리고 UI 요소만 분홍빛으로 표시되어야 합니다!");
+            ShowHelpMarker("Needs HUDless texture to compare with final image.\n"
+                           "UI elements and ONLY UI elements should have a pink tint!");
 
             const auto isUsingUIAny = fgOutput->IsUsingUIAny();
 
@@ -3610,8 +3611,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             {
                 config->FGDrawUIOverFG = drawUIOverFG;
             }
-            ShowHelpMarker("UI 리소스를 최종 이미지 위에 그립니다"
-                           "\nUI가 보이지 않으면 이 옵션을 활성화하세요!");
+            ShowHelpMarker("Draws UI resource over the final image\n"
+                           "If no UI visible, enable this!");
 
             ImGui::EndDisabled();
 
@@ -3624,7 +3625,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
             {
                 config->FGUIPremultipliedAlpha = uiPremultipliedAlpha;
             }
-            ShowHelpMarker("UI가 너무 흐릿하면 이 옵션을 비활성화하세요");
+            ShowHelpMarker("If UI is too faint, disable this option");
 
             ImGui::EndDisabled();
         }
@@ -3663,7 +3664,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                             fgOutput->UpdateTarget();
                         }
 
-                        ShowHelpMarker("게임이 UI 텍스처를 보내지만 이를 비활성화하고 싶을 때 사용합니다");
+                        ShowHelpMarker("For when the game sends a UI texture, but you want to disable it");
 
                         ImGui::EndDisabled();
 
@@ -3677,7 +3678,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                             config->FGDisableHudless = disableHudless;
                         }
 
-                        ShowHelpMarker("게임이 HUDless를 보내지만 이를 비활성화하고 싶을 때 사용합니다");
+                        ShowHelpMarker("For when the game sends HUDless, but you want to disable it");
 
                         ImGui::EndDisabled();
 
@@ -3685,8 +3686,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                         if (ImGui::Checkbox("Depth as ValidNow", &depthValidNow))
                             config->FGDepthValidNow = depthValidNow;
 
-                        ShowHelpMarker("VRAM을 더 사용하지만 Uniscaler에는 이 설정이 필요합니다"
-                                       "\n다른 게임에도 필요할 수 있습니다");
+                        ShowHelpMarker("Will use more VRAM, but Uniscaler needs this\n"
+                                       "Maybe some other games might need too");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
@@ -3694,14 +3695,14 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                         if (ImGui::Checkbox("Velocity as ValidNow", &velocityValidNow))
                             config->FGVelocityValidNow = velocityValidNow;
 
-                        ShowHelpMarker("VRAM을 더 사용하지만 Uniscaler에는 이 설정이 필요합니다"
-                                       "\n다른 게임에도 필요할 수 있습니다");
+                        ShowHelpMarker("Will use more VRAM, but Uniscaler needs this\n"
+                                       "Maybe some other games might need too");
 
                         bool hudlessValidNow = config->FGHudlessValidNow.value_or_default();
                         if (ImGui::Checkbox("HUDless as ValidNow", &hudlessValidNow))
                             config->FGHudlessValidNow = hudlessValidNow;
 
-                        ShowHelpMarker("VRAM을 더 사용하지만 일부 게임에는 이 설정이 필요합니다");
+                        ShowHelpMarker("Will use more VRAM, but some games might need this");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
@@ -3709,7 +3710,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                         if (ImGui::Checkbox("Accept First HUDless", &firstHudless))
                             config->FGOnlyAcceptFirstHudless = firstHudless;
 
-                        ShowHelpMarker("소스가 여러 개의 HUDless를 태그하면 첫 번째 것만 사용합니다");
+                        ShowHelpMarker("If source tags more than one HUDless, only use the first one");
 
                         if (bool skipReset = config->FGSkipReset.value_or_default();
                             ImGui::Checkbox("Skip Reset", &skipReset))
@@ -3717,7 +3718,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                             config->FGSkipReset = skipReset;
                         }
 
-                        ShowHelpMarker("FG Inputs의 리셋 신호를 사용하지 않습니다");
+                        ShowHelpMarker("Don't use reset signals from FG Inputs");
 
                         ImGui::EndDisabled();
 
@@ -3729,8 +3730,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                             config->FGAllowedFrameAhead = frameAhead;
                         }
 
-                        ShowHelpMarker("FG가 게임보다 앞서갈 수 있는 프레임 수입니다"
-                                       "\nFG 켜기/끄기 전환을 막을 수 있지만, 문제가 생길 수도 있습니다");
+                        ShowHelpMarker("Number of frames the FG is allowed to be ahead of the game\n"
+                                       "Might prevent FG on/off switching, but also might cause issues");
 
                         ImGui::PopItemWidth();
 
@@ -3766,8 +3767,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
                         ImGui::PopItemWidth();
 
-                        ShowHelpMarker("프레임타임 소스를 선택합니다"
-                                       "\n프레임 페이싱과 스타터 문제에 도움이 될 수 있습니다");
+                        ShowHelpMarker("Select source for frametime\n"
+                                       "Might help frame pacing and stutter issues");
                     }
                 }
 
@@ -3777,8 +3778,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                     if (ImGui::SliderFloat("Hud Cutoff", &fgHudCutoff, 0.00f, 1.0f, "%.2f"))
                         config->FGHudCutoff = fgHudCutoff;
 
-                    ShowHelpMarker("보간을 돕기 위해 UI의 투명도를 잘라냅니다"
-                                   "\nShow Detected UI로 차이를 확인할 수 있습니다\n0.0은 자동입니다");
+                    ShowHelpMarker("Cutoffs transparency from UI to help with interpolation\n"
+                                   "You can use Show Detected UI to see the difference\n0.0 is auto");
                 }
             }
         }
@@ -3824,7 +3825,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 }
                 ImGui::PopItemWidth();
 
-                ShowHelpMarker("FFX SDK가 보고한 FG 목록입니다");
+                ShowHelpMarker("List of FGs reported by FFX SDK");
 
                 ImGui::SameLine(0.0f, 6.0f);
 
@@ -3845,7 +3846,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 if (config->FGEnabled.value_or_default())
                     state.fgChanged = true;
             }
-            ShowHelpMarker("프레임 생성을 활성화합니다");
+            ShowHelpMarker("Enable Frame Generation");
 
             bool fgAsync = config->FGAsync.value_or_default();
             if (ImGui::Checkbox("Allow Async", &fgAsync))
@@ -3859,7 +3860,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     LOG_DEBUG("Async set FGChanged");
                 }
             }
-            ShowHelpMarker("더 나은 FG 성능을 위해 Async를 활성화합니다\n특히 HUD Fix와 함께 사용하면 크래시가 발생할 수 있습니다!");
+            ShowHelpMarker("Enable Async for better FG performance\nMight cause crashes, especially with HUD Fix!");
 
             ImGui::SameLine(0.0f, 16.0f);
 
@@ -3874,14 +3875,14 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     LOG_DEBUG("DebugView set FGChanged");
                 }
             }
-            ShowHelpMarker("FSR3.1-FG Debug view를 활성화합니다"
-                           ""
-                           ""
-                           "좌상단: Game Motion Vectors"
-                           ""
-                           "상단 중앙: GMV Depth"
-                           ""
-                           "우상단: Optical Flow MV\n\n중앙: 보간된 프레임만 표시\n\n좌하단: Disocclusion mask\n\n하단 중앙: 보간 소스(UI 제외)\n\n우하단: HUDless 리소스");
+            ShowHelpMarker("Enable FSR3.1-FG Debug view\n\n"
+                           "Top left: Game Motion Vectors\n"
+                           "Top middle: GMV Depth\n"
+                           "Top right: Optical Flow MV\n"
+                           "Middle: Interpolated frame only\n"
+                           "Bottom left: Disocclusion mask\n"
+                           "Bottom middle: Interpolation source (w/o UI)\n"
+                           "Bottom right: HUDless resource");
 
             ImGui::SameLine(0.0f, 16.0f);
 
@@ -3894,8 +3895,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FSRFGEnableWatermark = fgwm;
                 }
 
-                ShowHelpMarker("이 옵션을 변경한 후에는 Save Settings를 눌러 주세요"
-                               "\n다음 실행 때 적용됩니다.");
+                ShowHelpMarker("After changing this option, please Save Settings\n"
+                               "It will be applied on next launch.");
             }
 
             ImGui::Spacing();
@@ -3906,7 +3907,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 ImGui::Spacing();
 
                 ImGui::Checkbox("FG Only Generated", &state.fgOnlyGenerated);
-                ShowHelpMarker("FSR 3.1로 생성된 프레임만 표시합니다");
+                ShowHelpMarker("Display only FSR 3.1 Generated frames");
 
                 ImGui::SameLine(0.0f, 16.0f);
                 auto debugResetLines = config->FGDebugResetLines.value_or_default();
@@ -3915,7 +3916,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGDebugResetLines = debugResetLines;
                     LOG_DEBUG("Enabled set FGDebugLines: {}", debugResetLines);
                 }
-                ShowHelpMarker("보간 스킵 라인 그리기를 활성화합니다");
+                ShowHelpMarker("Enables drawing of Interpolation skip lines");
 
                 auto debugTearLines = config->FGDebugTearLines.value_or_default();
                 if (ImGui::Checkbox("Debug Tear Lines", &debugTearLines))
@@ -3923,7 +3924,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGDebugTearLines = debugTearLines;
                     LOG_DEBUG("Enabled set FGDebugLines: {}", debugTearLines);
                 }
-                ShowHelpMarker("Tear 라인과 보간 스킵 라인 그리기를 활성화합니다");
+                ShowHelpMarker("Enables drawing of Tear and Interpolation skip lines");
 
                 ImGui::SameLine(0.0f, 16.0f);
                 auto debugPacingLines = config->FGDebugPacingLines.value_or_default();
@@ -3932,7 +3933,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGDebugPacingLines = debugPacingLines;
                     LOG_DEBUG("Enabled set FGDebugLines: {}", debugPacingLines);
                 }
-                ShowHelpMarker("페이싱 라인 그리기를 활성화합니다");
+                ShowHelpMarker("Enables drawing of Pacing lines");
 
                 ImGui::Spacing();
                 if (ImGui::TreeNode("FG Rectangle Settings"))
@@ -3957,7 +3958,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         config->FGRectHeight = rectHeight;
 
                     ImGui::PopItemWidth();
-                    ShowHelpMarker("프레임 생성 사각형입니다. 레터박스 콘텐츠에 맞게 조정하세요");
+                    ShowHelpMarker("Frame generation rectangle, adjust for letterboxed content");
 
                     ImGui::BeginDisabled(!config->FGRectLeft.has_value() && !config->FGRectTop.has_value() &&
                                          !config->FGRectWidth.has_value() && !config->FGRectHeight.has_value());
@@ -3970,7 +3971,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         config->FGRectHeight.reset();
                     }
 
-                    ShowHelpMarker("프레임 생성 사각형을 초기화합니다");
+                    ShowHelpMarker("Resets Frame generation rectangle");
 
                     ImGui::EndDisabled();
                     ImGui::TreePop();
@@ -3997,31 +3998,31 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         auto fptSafetyMargin = config->FGFPTSafetyMarginInMs.value_or_default();
                         if (ImGui::InputFloat("Safety Margins in ms", &fptSafetyMargin, 0.01f, 0.1f, "%.2f"))
                             config->FGFPTSafetyMarginInMs = fptSafetyMargin;
-                        ShowHelpMarker("안전 여유 시간(밀리초)입니다"
-                                       ""
-                                       "FSR 기본값: 0.1ms\n\nOpti 기본값: 0.01ms");
+                        ShowHelpMarker("Safety margins in millisecons\n"
+                                       "FSR default value: 0.1ms\n"
+                                       "Opti default value: 0.01ms");
 
                         auto fptVarianceFactor = config->FGFPTVarianceFactor.value_or_default();
                         if (ImGui::SliderFloat("Variance Factor", &fptVarianceFactor, 0.0f, 1.0f, "%.2f"))
                             config->FGFPTVarianceFactor = fptVarianceFactor;
-                        ShowHelpMarker("Variance factor입니다"
-                                       ""
-                                       "FSR 기본값: 0.1\n\nOpti 기본값: 0.3");
+                        ShowHelpMarker("Variance factor\n"
+                                       "FSR default value: 0.1\n"
+                                       "Opti default value: 0.3");
                         ImGui::PopItemWidth();
 
                         auto fpHybridSpin = config->FGFPTAllowHybridSpin.value_or_default();
                         if (ImGui::Checkbox("Enable Hybrid Spin", &fpHybridSpin))
                             config->FGFPTAllowHybridSpin = fpHybridSpin;
-                        ShowHelpMarker("페이싱 스핀락이 잠들 수 있게 해서 CPU 사용량을 줄여 줍니다"
-                                       "\nFPS가 천천히 오를 수 있습니다");
+                        ShowHelpMarker("Allows pacing spinlock to sleep, should reduce CPU usage\n"
+                                       "Might cause slow ramp up of FPS");
 
                         ImGui::PushItemWidth(115.0f * menuResScale);
                         auto fptHybridSpinTime = config->FGFPTHybridSpinTime.value_or_default();
                         if (ImGui::SliderInt("Hybrid Spin Time", &fptHybridSpinTime, 0, 100))
                             config->FGFPTHybridSpinTime = fptHybridSpinTime;
-                        ShowHelpMarker("FPTHybridSpin이 true일 때 스핀하는 시간입니다. 타이머 해상도 단위로 측정합니다."
-                                       ""
-                                       "2 미만은 권장하지 않습니다. 잦은 오버슈트가 발생합니다");
+                        ShowHelpMarker("How long to spin if FPTHybridSpin is true. Measured in timer "
+                                       "resolution units.\n"
+                                       "Not recommended to go below 2. Will result in frequent overshoots");
                         ImGui::PopItemWidth();
 
                         auto fpWaitForSingleObjectOnFence =
@@ -4030,7 +4031,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         {
                             config->FGFPTAllowWaitForSingleObjectOnFence = fpWaitForSingleObjectOnFence;
                         }
-                        ShowHelpMarker("펜스 값을 기다릴 때 스핀 대신 WaitForSingleObject를 사용합니다");
+                        ShowHelpMarker("Allows WaitForSingleObject instead of spinning for fence value");
 
                         if (ImGui::Button("Apply Timing Changes"))
                             state.fsrfgFramePaceTuningChanged = true;
@@ -4106,9 +4107,9 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
             if (ImGui::Checkbox("Ignore Init Checks", &ignoreChecks))
                 config->FGXeFGIgnoreInitChecks = ignoreChecks;
 
-            ShowHelpMarker("XeFG의 모든 사전 검사를 건너뜁니다"
-                           ""
-                           "UE 게임에서 MV 크기 경고를 건너뛰려고 이 옵션을 사용하지 마세요!\n\n크래시와 이미지 품질 저하가 발생할 수 있습니다!");
+            ShowHelpMarker("Ignores all prechecks for XeFG\n"
+                           "Don't use this option to skip MV size warning for UE games!\n"
+                           "It might cause crashes and bad IQ!");
         }
 
         ImGui::BeginDisabled(!correctMVs || cantActivate);
@@ -4123,7 +4124,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 state.fgChanged = true;
         }
 
-        ShowHelpMarker("프레임 생성을 활성화합니다");
+        ShowHelpMarker("Enable Frame Generation");
 
         auto maxInterpolationCount = fgOutput->GetMaxInterpolationCount();
 
@@ -4154,7 +4155,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
 
             ImGui::PopItemWidth();
 
-            ShowHelpMarker("XeFG 보간 배수를 설정합니다");
+            ShowHelpMarker("Set XeFG interpolation count");
         }
 
         ImGui::SameLine(0.0f, 16.0f);
@@ -4163,9 +4164,9 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         if (ImGui::Checkbox("UI Composition", &fgCompositeUI))
             config->FGXeFGUIComposition = fgCompositeUI;
 
-        ShowHelpMarker("HUD/UI 보간을 비활성화합니다"
-                       ""
-                       "이전 XeFG 2 동작으로 되돌아갑니다\n\n\n투명한 HUD/UI의 깨짐 현상을 해결합니다");
+        ShowHelpMarker("Disable HUD/UI interpolation\n"
+                       "Reverts back to previous XeFG 2 behaviour\n\n"
+                       "Fixes artifacting transparent HUD/UI");
         ImGui::EndDisabled();
 
         bool fgDV = config->FGXeFGDebugView.value_or_default();
@@ -4179,7 +4180,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 LOG_DEBUG("DebugView set FGChanged");
             }
         }
-        ShowHelpMarker("XeFG Debug view를 활성화합니다");
+        ShowHelpMarker("Enable XeFG Debug view");
 
         ImGui::EndDisabled();
 
@@ -4188,16 +4189,16 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         if (ImGui::Checkbox("Force Borderless", &fgBorderless))
             config->FGXeFGForceBorderless = fgBorderless;
 
-        ShowHelpMarker("Borderless 디스플레이 모드를 강제합니다"
-                       ""
-                       ""
-                       "가장 좋은 결과를 위해서는 전체 화면 해상도를"
-                       "\n디스플레이 해상도와 같게 설정하세요\n\n일부 불안정 문제가 발생할 수 있습니다\n\n\n적용하려면 게임 재시작이 필요합니다!");
+        ShowHelpMarker("Forces Borderless display mode\n\n"
+                       "For best results, set fullscreen \n"
+                       "resolution to your display resolution\n"
+                       "Might cause some instability issues.\n\n"
+                       "NEEDS GAME RESTART TO BE ACTIVE!");
 
         // Disable this for now
         // ImGui::SameLine(0.0f, 16.0f);
         // ImGui::Checkbox("Only Generated##2", &state.fgOnlyGenerated);
-        // ShowHelpMarker("XeFG로 생성된 프레임만 표시합니다");
+        // ShowHelpMarker("Display only XeFG generated frames");
 
         ImGui::Spacing();
         if (auto ch = ScopedCollapsingHeader("Extended XeFG Settings"); ch.IsHeaderOpen())
@@ -4225,7 +4226,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGRectHeight = rectHeight;
 
                 ImGui::PopItemWidth();
-                ShowHelpMarker("프레임 생성 사각형입니다. 레터박스 콘텐츠에 맞게 조정하세요##2");
+                ShowHelpMarker("Frame generation rectangle, adjust for letterboxed content##2");
 
                 ImGui::BeginDisabled(!config->FGRectLeft.has_value() && !config->FGRectTop.has_value() &&
                                      !config->FGRectWidth.has_value() && !config->FGRectHeight.has_value());
@@ -4238,7 +4239,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGRectHeight.reset();
                 }
 
-                ShowHelpMarker("프레임 생성 사각형을 초기화합니다##2");
+                ShowHelpMarker("Resets Frame generation rectangle##2");
 
                 ImGui::EndDisabled();
                 ImGui::TreePop();
@@ -4286,7 +4287,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 state.fgChanged = true;
         }
 
-        ShowHelpMarker("프레임 생성을 활성화합니다");
+        ShowHelpMarker("Enable Frame Generation");
 
         auto maxInterpolationCount = fgOutput->GetMaxInterpolationCount();
 
@@ -4318,7 +4319,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
 
             ImGui::PopItemWidth();
 
-            ShowHelpMarker("DLSSG 보간 프레임 수를 설정합니다");
+            ShowHelpMarker("Set DLSSG interpolation count");
 
             ImGui::EndDisabled();
 
@@ -4336,7 +4337,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 static float fpsTarget = config->FGDLSSGFramerateTargetDMFG.value_or_default();
                 ImGui::SliderFloat("DMFG FPS Target", &fpsTarget, 0, 200, "%.0f");
 
-                ShowHelpMarker("활성화된 제한값이 0이면 디스플레이 재생 빈도를 자동으로 감지합니다");
+                ShowHelpMarker("An active limit of 0 means auto-detect the display refresh rate");
 
                 if (ImGui::Button("Apply Target"))
                 {
@@ -4368,7 +4369,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
     // OptiFG
     if (state.api != API::Vulkan && state.currentFGSwapchain != nullptr && state.activeFgInput == FGInput::Upscaler)
     {
-        SeparatorWithHelpMarker("프레임 생성 (OptiFG)", "업스케일러 데이터를 FG에 사용합니다");
+        SeparatorWithHelpMarker("Frame Generation (OptiFG)", "Using upscaler data for FG");
 
         if (currentFeature != nullptr && !currentFeature->IsFrozen() &&
             ((state.activeFgOutput == FGOutput::FSRFG && FfxApiProxy::IsFGReady()) ||
@@ -4388,7 +4389,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     state.fgChanged = true;
                 }
 
-                ShowHelpMarker("HUD 안정성 수정을 활성화합니다. 충돌이 발생할 수 있습니다!");
+                ShowHelpMarker("Enable HUD stability fix, might cause crashes!");
 
                 ImGui::BeginDisabled(!config->FGHUDFix.value_or_default());
 
@@ -4405,7 +4406,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     config->FGHUDLimit = hudFixLimit;
                     LOG_DEBUG("Enabled set FGHUDLimit: {}", hudFixLimit);
                 }
-                ShowHelpMarker("HUDless 캡처를 지연시킵니다. 값이 높으면 충돌이 발생할 수 있습니다!");
+                ShowHelpMarker("Delay HUDless capture, high values might cause crash!");
 
                 ImGui::SameLine(0.0f, 16.0f);
                 if (ImGui::Button("Res##2"))
@@ -4419,7 +4420,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     LOG_DEBUG("Enabled set FGHUDFixExtended: {}", hudExtended);
                     config->FGHUDFixExtended = hudExtended;
                 }
-                ShowHelpMarker("HUDless일 가능성이 있는 리소스를 위한 확장 형식 검사입니다.\n충돌과 성능 저하를 일으킬 수 있습니다!");
+                ShowHelpMarker("Extended format checks for possible HUDless\nMight cause crashes and slowdowns!");
                 ImGui::SameLine(0.0f, 16.0f);
 
                 ImGui::BeginDisabled(!config->FGHUDFix.value_or_default());
@@ -4430,8 +4431,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     LOG_DEBUG("Enabled set FGImmediateCapture: {}", immediate);
                     config->FGImmediateCapture = immediate;
                 }
-                ShowHelpMarker("셰이더 실행 전에 리소스를 캡처합니다."
-                               "HUDless 캡처 가능성은 높아지지만, 불필요한 리소스까지 캡처될 수 있습니다.");
+                ShowHelpMarker("Enables capturing of resources before shader execution.\nIncrease HUDless "
+                               "capture chances, but might cause capturing of unnecessary resources.");
 
                 ImGui::PopItemWidth();
 
@@ -4441,19 +4442,19 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
             bool depthScale = config->FGEnableDepthScale.value_or_default();
             if (ImGui::Checkbox("Scale Depth to fix DLSS RR", &depthScale))
                 config->FGEnableDepthScale = depthScale;
-            ShowHelpMarker("DLSS-D가 잘못된 깊이 입력을 받는 문제에 대한 수정입니다");
+            ShowHelpMarker("Fix for DLSS-D wrong depth inputs");
 
             bool resourceFlip = config->FGResourceFlip.value_or_default();
             if (ImGui::Checkbox("Flip (Unity)", &resourceFlip))
                 config->FGResourceFlip = resourceFlip;
-            ShowHelpMarker("Unity 게임의 Velocity와 Depth 리소스를 서로 뒤바꿉니다");
+            ShowHelpMarker("Flip Velocity & Depth resources of Unity games");
 
             ImGui::SameLine(0.0f, 16.0f);
 
             bool resourceFlipOffset = config->FGResourceFlipOffset.value_or_default();
             if (ImGui::Checkbox("Flip Use Offset", &resourceFlipOffset))
                 config->FGResourceFlipOffset = resourceFlipOffset;
-            ShowHelpMarker("높이 차이를 오프셋으로 사용합니다");
+            ShowHelpMarker("Use height difference as offset");
 
             ImGui::Spacing();
 
@@ -4472,9 +4473,9 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         config->FGResourceBlocking = rb;
                         LOG_DEBUG("Enabled set FGResourceBlocking: {}", rb);
                     }
-                    ShowHelpMarker("깜빡임 등의 문제를 막기 위해 자주 사용되지 않는 리소스가 HUDless로 쓰이지 않도록 차단합니다."
-                                   ""
-                                   "HUDfix를 켜거나 끄면 차단 목록이 초기화됩니다!");
+                    ShowHelpMarker("Block rarely used resources from using as HUDless \n"
+                                   "to prevent flickers and other issues\n\n"
+                                   "HUDfix enable/disable will reset the block list!");
 
                     ImGui::SameLine(0.0f, 16.0f);
 
@@ -4484,9 +4485,9 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         config->FGRelaxedResolutionCheck = rrc;
                         LOG_DEBUG("Enabled set FGRelaxedResolutionCheck: {}", rrc);
                     }
-                    ShowHelpMarker("일부 해상도와 화면 비율에서 검은 테두리를"
-                                   "쓰는 게임(예: Witcher 3)에 도움이 되도록"
-                                   "HUDless 해상도 검사를 32픽셀 만큼 완화합니다");
+                    ShowHelpMarker("Relax resolution checks for HUDless by 32 pixels \n"
+                                   "Helps games which use black borders for some \n"
+                                   "resolutions and screen ratios (e.g. Witcher 3)");
 
                     ImGui::BeginDisabled(state.fgResetCapturedResources);
                     ImGui::PushItemWidth(95.0f * menuResScale);
@@ -4535,72 +4536,72 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                             config->FGAlwaysTrackHeaps = ath;
                             LOG_DEBUG("Enabled set FGAlwaysTrackHeaps: {}", ath);
                         }
-                        ShowHelpMarker("리소스를 항상 추적합니다. 성능 문제가 생길 수 있지만, HUDFix 관련"
-                                       "충돌을 고칠 수도 있습니다!");
+                        ShowHelpMarker("Always track resources, might cause performance issues\n, but also might "
+                                       "fix HUDFix related crashes!");
 
                         auto disableRTV = config->FGHudfixDisableRTV.value_or_default();
                         if (ImGui::Checkbox("Disable RTV Tracking", &disableRTV))
                             config->FGHudfixDisableRTV = disableRTV;
-                        ShowHelpMarker("CreateRenderTargetView 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of CreateRenderTargetView\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
                         auto disableSRV = config->FGHudfixDisableSRV.value_or_default();
                         if (ImGui::Checkbox("Disable SRV Tracking", &disableSRV))
                             config->FGHudfixDisableSRV = disableSRV;
-                        ShowHelpMarker("CreateShaderResourceView 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of CreateShaderResourceView\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         auto disableUAV = config->FGHudfixDisableUAV.value_or_default();
                         if (ImGui::Checkbox("Disable UAV Tracking", &disableUAV))
                             config->FGHudfixDisableUAV = disableUAV;
-                        ShowHelpMarker("CreateUnorderedAccessView 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of CreateUnorderedAccessView\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
                         auto disableOM = config->FGHudfixDisableOM.value_or_default();
                         if (ImGui::Checkbox("Disable OM Tracking", &disableOM))
                             config->FGHudfixDisableOM = disableOM;
-                        ShowHelpMarker("OMSetRenderTargets 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of OMSetRenderTargets\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         auto disableSCR = config->FGHudfixDisableSCR.value_or_default();
                         if (ImGui::Checkbox("Disable SCR Tracking", &disableSCR))
                             config->FGHudfixDisableSCR = disableSCR;
-                        ShowHelpMarker("SetComputeRootDescriptorTable 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of SetComputeRootDescriptorTable\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
                         auto disableSGR = config->FGHudfixDisableSGR.value_or_default();
                         if (ImGui::Checkbox("Disable SGR Tracking", &disableSGR))
                             config->FGHudfixDisableSGR = disableSGR;
-                        ShowHelpMarker("SetGraphicsRootDescriptorTable 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of SetGraphicsRootDescriptorTable\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::Spacing();
 
                         auto disableDI = config->FGHudfixDisableDI.value_or_default();
                         if (ImGui::Checkbox("Disable DI Tracking", &disableDI))
                             config->FGHudfixDisableDI = disableDI;
-                        ShowHelpMarker("DrawInstanced 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of DrawInstanced\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::SameLine(0.0f, 16.0f);
 
                         auto disableDII = config->FGHudfixDisableDII.value_or_default();
                         if (ImGui::Checkbox("Disable DII Tracking", &disableDII))
                             config->FGHudfixDisableDII = disableDII;
-                        ShowHelpMarker("DrawIndexedInstanced 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of DrawIndexedInstanced\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         auto disableDispatch = config->FGHudfixDisableDispatch.value_or_default();
                         if (ImGui::Checkbox("Disable Dispatch Tracking", &disableDispatch))
                             config->FGHudfixDisableDispatch = disableDispatch;
-                        ShowHelpMarker("Dispatch 추적을 비활성화합니다."
-                                       "잘못된 HUDless 리소스를 걸러내는 데 도움이 될 수 있습니다");
+                        ShowHelpMarker("Disable tracking of Dispatch\n"
+                                       "This might help filtering of wrong HUDless resources");
 
                         ImGui::TreePop();
                     }
@@ -4612,20 +4613,20 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     bool makeMVCopies = config->FGMakeMVCopy.value_or_default();
                     if (ImGui::Checkbox("FG Make MV Copies", &makeMVCopies))
                         config->FGMakeMVCopy = makeMVCopies;
-                    ShowHelpMarker("OptiFG에서 사용할 모션 벡터 복사본을 만듭니다."
-                                   "발생할 수 있는 화면 깨짐을 방지하기 위해서입니다");
+                    ShowHelpMarker("Make a copy of motion vectors to use with OptiFG\n"
+                                   "For preventing corruptions that might happen");
 
                     bool makeDepthCopies = config->FGMakeDepthCopy.value_or_default();
                     if (ImGui::Checkbox("FG Make Depth Copies", &makeDepthCopies))
                         config->FGMakeDepthCopy = makeDepthCopies;
-                    ShowHelpMarker("OptiFG에서 사용할 깊이 복사본을 만듭니다."
-                                   "발생할 수 있는 화면 깨짐을 방지하기 위해서입니다");
+                    ShowHelpMarker("Make a copy of depth to use with OptiFG\n"
+                                   "For preventing corruptions that might happen");
 
                     ImGui::PushItemWidth(115.0f * menuResScale);
                     float depthScaleMax = config->FGDepthScaleMax.value_or_default();
                     if (ImGui::InputFloat("FG Scale Depth Max", &depthScaleMax, 10.0f, 100.0f, "%.1f"))
                         config->FGDepthScaleMax = depthScaleMax;
-                    ShowHelpMarker("깊이 값이 이 값으로 나뉩니다");
+                    ShowHelpMarker("Depth values will be divided to this value");
                     ImGui::PopItemWidth();
 
                     ImGui::TreePop();
@@ -4637,8 +4638,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     bool useMutexForPresent = config->FGUseMutexForSwapchain.value_or_default();
                     if (ImGui::Checkbox("FG Use Mutex for Present", &useMutexForPresent))
                         config->FGUseMutexForSwapchain = useMutexForPresent;
-                    ShowHelpMarker("뮤텍스를 사용해 FG 비동기화와 충돌을 막습니다."
-                                   "끄면 성능은 나아질 수 있지만 안정성이 떨어집니다");
+                    ShowHelpMarker("Use mutex to prevent desync of FG and crashes\n"
+                                   "Disabling might improve the perf but decrease stability");
 
                     ImGui::TreePop();
                 }
@@ -4668,8 +4669,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
     {
         if (activeNvngxFg == FGNvngxReplacement::Nukems)
         {
-            SeparatorWithHelpMarker("프레임 생성 (Nukem의 DLSSG를 통한 FSR3-FG)",
-                                    "Nukem의 dlssg_to_fsr3 dll이 필요합니다");
+            SeparatorWithHelpMarker("Frame Generation (FSR3-FG via Nukem's DLSSG)",
+                                    "Requires Nukem's dlssg_to_fsr3 dll");
 
             if (!state.nukemsFgFileAvailable)
             {
@@ -4679,8 +4680,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         }
         else if (activeNvngxFg == FGNvngxReplacement::Arturs)
         {
-            SeparatorWithHelpMarker("프레임 생성 (DLSS Enabler를 통한 FSR3-MFG)",
-                                    "dlss-enabler-headless.dll 형태의 DLSS Enabler를 사용합니다");
+            SeparatorWithHelpMarker("Frame Generation (FSR3-MFG via DLSS Enabler)",
+                                    "DLSS Enabler as dlss-enabler-headless.dll");
 
             if (!state.artursFgFileAvailable)
             {
@@ -4693,13 +4694,13 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         }
         else if (activeNvngxFg == FGNvngxReplacement::FFX)
         {
-            SeparatorWithHelpMarker("프레임 생성 (FFX를 통한 FSRFG)", "DLSSG 스왑체인으로 FFX를 사용합니다");
+            SeparatorWithHelpMarker("Frame Generation (FSRFG via FFX)", "FFX using the DLSSG swapchain");
         }
         else if (activeNvngxFg == FGNvngxReplacement::Combo)
         {
-            SeparatorWithHelpMarker("프레임 생성 (Enabler + FFX)",
-                                    "중간 가상 프레임은 FFX가, 나머지는 Enabler가 맡습니다"
-                                    "\n2x - FFX\n3x - Enabler\n4x - FFX + Enabler\n5x - Enabler\n6x - FFX + Enabler");
+            SeparatorWithHelpMarker("Frame Generation (Enabler + FFX)",
+                                    "FFX for middle fake frames, and Enabler for the rest\n\n2x - FFX\n"
+                                    "3x - Enabler\n4x - FFX + Enabler\n5x - Enabler\n6x - FFX + Enabler");
         }
 
         if (state.activeFgInput == FGInput::NvngxFG)
@@ -4746,8 +4747,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     {
                         config->NvngxFGMakeDepthCopy = makeDepthCopy;
                     }
-                    ShowHelpMarker("깊이 버퍼의 복사본을 만듭니다."
-                                   "Windows의 AMD GPU에서 일부 게임의 깨진 화면을 고칠 수 있습니다.\n스터터를 일으킬 수 있으니 필요할 때만 쓰는 것이 좋습니다");
+                    ShowHelpMarker("Makes a copy of the depth buffer\nCan fix broken visuals in some games on AMD "
+                                   "GPUs under Windows\nCan cause stutters, so best to use only when necessary");
                 }
             }
             else if (state.swapchainApi == Vulkan)
@@ -4810,7 +4811,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 {
                     config->NvngxFGShowDebug = showDebug;
                 }
-                ShowHelpMarker("Debug 플래그가 올바르게 작동하는 데 필요합니다");
+                ShowHelpMarker("Required for Debug flags to work correctly");
 
                 ImGui::Spacing();
 
@@ -4887,7 +4888,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                     }
                     ImGui::PopItemWidth();
 
-                    ShowHelpMarker("FFX SDK가 보고한 FG 목록입니다");
+                    ShowHelpMarker("List of FGs reported by FFX SDK");
 
                     ImGui::SameLine(0.0f, 6.0f);
 
@@ -4909,7 +4910,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         LOG_DEBUG("Async set FGChanged");
                     }
                 }
-                ShowHelpMarker("FG 성능을 높이려면 Async를 활성화합니다.\n특히 HUD Fix와 함께 쓸 때 충돌이 발생할 수 있습니다!");
+                ShowHelpMarker("Enable Async for better FG performance\nMight cause crashes, especially with HUD Fix!");
 
                 ImGui::SameLine(0.0f, 20.0f * menuResScale);
                 bool fgDV = config->FGDebugView.value_or_default();
@@ -4923,14 +4924,14 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         LOG_DEBUG("DebugView set FGChanged");
                     }
                 }
-                ShowHelpMarker("FSR3.1-FG 디버그 뷰를 활성화합니다"
-                               ""
-                               "좌상단: 게임 모션 벡터"
-                               "중앙 상단: GMV Depth"
-                               "우상단: Optical Flow MV"
-                               "중앙: 보간된 프레임만 표시"
-                               "좌하단: Disocclusion 마스크"
-                               "중앙 하단: 보간 소스(UI 제외)\n우하단: HUDless 리소스");
+                ShowHelpMarker("Enable FSR3.1-FG Debug view\n\n"
+                               "Top left: Game Motion Vectors\n"
+                               "Top middle: GMV Depth\n"
+                               "Top right: Optical Flow MV\n"
+                               "Middle: Interpolated frame only\n"
+                               "Bottom left: Disocclusion mask\n"
+                               "Bottom middle: Interpolation source (w/o UI)\n"
+                               "Bottom right: HUDless resource");
 
                 if (Nvngx_FG::version().major > 3)
                 {
@@ -4942,8 +4943,8 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                         config->FSRFGEnableWatermark = fgwm;
                     }
 
-                    ShowHelpMarker("이 옵션을 변경한 후에는 설정을 저장해 주세요."
-                                   "다음 실행 때 적용됩니다.");
+                    ShowHelpMarker("After changing this option, please Save Settings\n"
+                                   "It will be applied on next launch.");
                 }
             }
 
@@ -4952,7 +4953,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
             {
                 config->NvngxFGDisableHudless = disableHudless;
             }
-            ShowHelpMarker("일부 DispatchFlags 조합에서는 필요할 수 있습니다");
+            ShowHelpMarker("Might be required for some sets of DispatchFlags");
         }
     }
 
@@ -4960,7 +4961,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
     if (state.currentFGSwapchain != nullptr &&
         (state.activeFgInput == FGInput::FSRFG || state.activeFgInput == FGInput::FSRFG30))
     {
-        SeparatorWithHelpMarker("프레임 생성 (FSR-FG Inputs)", "게임 내에서 FSR-FG를 선택합니다");
+        SeparatorWithHelpMarker("Frame Generation (FSR-FG Inputs)", "Select FSR-FG in-game");
 
         auto fgOutput = reinterpret_cast<IFGFeature_Dx12*>(state.currentFG);
         if (fgOutput != nullptr)
@@ -4986,7 +4987,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         if (ImGui::Checkbox("Skip Config for HUDless", &skipConfig))
             config->FSRFGSkipConfigForHudless = skipConfig;
 
-        ShowHelpMarker("ffxConfig에서 HUDless 세트를 사용하지 않습니다");
+        ShowHelpMarker("Do not use HUDless set at ffxConfig");
 
         ImGui::SameLine(0.0f, 6.0f);
 
@@ -4994,13 +4995,13 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         if (ImGui::Checkbox("Skip Dispatch for HUDless", &skipDispatch))
             config->FSRFGSkipDispatchForHudless = skipDispatch;
 
-        ShowHelpMarker("ffxDispatch에서 HUDless 세트를 사용하지 않습니다");
+        ShowHelpMarker("Do not use HUDless set at ffxDispatch");
     }
 
     // Streamline FG Inputs
     if (state.currentFGSwapchain != nullptr && state.activeFgInput == FGInput::DLSSG)
     {
-        SeparatorWithHelpMarker("프레임 생성 (Streamline FG Inputs)", "게임 내에서 DLSS-FG를 선택합니다");
+        SeparatorWithHelpMarker("Frame Generation (Streamline FG Inputs)", "Select DLSS-FG in-game");
 
         auto fgOutput = reinterpret_cast<IFGFeature_Dx12*>(state.currentFG);
 
@@ -5042,7 +5043,7 @@ void MenuCommon::RenderFsrCommonSettings(RenderMenuContext& ctx)
         if (currentFeature != nullptr && !currentFeature->IsFrozen() &&
             (state.activeFgOutput == FGOutput::FSRFG || IsFsr(currentBackend)))
         {
-            SeparatorWithHelpMarker("FSR 공통 설정", "FSR-FG와 업스케일러 모두에 적용됩니다");
+            SeparatorWithHelpMarker("FSR Common Settings", "Affects both FSR-FG & Upscalers");
 
             bool useFsrVales = config->FsrUseFsrInputValues.value_or_default();
             if (ImGui::Checkbox("Use FSR Input Values", &useFsrVales))
@@ -5085,14 +5086,14 @@ void MenuCommon::RenderFsrCommonSettings(RenderMenuContext& ctx)
                     if (ImGui::SliderFloat("Vert. FOV", &vfov, 0.0f, 180.0f, "%.1f"))
                         config->FsrVerticalFov = vfov;
 
-                    ShowHelpMarker("더 나은 이미지 품질을 얻는 데 도움이 될 수 있습니다");
+                    ShowHelpMarker("Might help achieve better image quality");
                 }
                 else
                 {
                     if (ImGui::SliderFloat("Horz. FOV", &hfov, 0.0f, 180.0f, "%.1f"))
                         config->FsrHorizontalFov = hfov;
 
-                    ShowHelpMarker("더 나은 이미지 품질을 얻는 데 도움이 될 수 있습니다");
+                    ShowHelpMarker("Might help achieve better image quality");
                 }
 
                 float cameraNear;
@@ -5103,13 +5104,13 @@ void MenuCommon::RenderFsrCommonSettings(RenderMenuContext& ctx)
 
                 if (ImGui::SliderFloat("Camera Near", &cameraNear, 0.1f, 500000.0f, "%.1f"))
                     config->FsrCameraNear = cameraNear;
-                ShowHelpMarker("더 나은 이미지 품질을 얻는 데 도움이 될 수 있습니다."
-                               "고스팅도 줄어들 수 있습니다.");
+                ShowHelpMarker("Might help achieve better image quality\n"
+                               "And potentially less ghosting");
 
                 if (ImGui::SliderFloat("Camera Far", &cameraFar, 0.1f, 500000.0f, "%.1f"))
                     config->FsrCameraFar = cameraFar;
-                ShowHelpMarker("더 나은 이미지 품질을 얻는 데 도움이 될 수 있습니다."
-                               "고스팅도 줄어들 수 있습니다.");
+                ShowHelpMarker("Might help achieve better image quality\n"
+                               "And potentially less ghosting");
 
                 if (ImGui::Button("Reset Camera Values"))
                 {
@@ -5141,7 +5142,7 @@ void MenuCommon::RenderFramerateSettings(RenderMenuContext& ctx)
     if (state.reflexLimitsFps || config->OverlayMenu.value_or_default())
     {
         SeparatorWithHelpMarker(
-            "프레임레이트", "가능하면 Reflex를 사용합니다.\nAMD/Intel 카드에서는 Fakenvapi로 Reflex를 대체할 수 있습니다");
+            "Framerate", "Uses Reflex when possible\nOn AMD/Intel cards, you can use Fakenvapi to substitute Reflex");
 
         static std::string currentMethod {};
         LowLatencyMode fakenvapiMode = {};
@@ -5191,7 +5192,7 @@ void MenuCommon::RenderFramerateSettings(RenderMenuContext& ctx)
         ImGui::Text("Current method: %s", currentMethod.c_str());
 
         if (fakenvapiMode == LowLatencyMode::AntiLag2)
-            ShowHelpMarker("FSR Anti-Lag 2.0은 AntiLag 2의 새 이름입니다.\n왜 이름을 바꿨는지는 저도 모릅니다");
+            ShowHelpMarker("FSR Anti-Lag 2.0 is the new name for AntiLag 2\nDon't ask me why");
 
         if (state.reflexShowWarning)
         {
@@ -5272,8 +5273,8 @@ void MenuCommon::RenderFakenvapiSettings(RenderMenuContext& ctx)
         {
             config->FN_ForceLatencyFlex = forceLFX;
         }
-        ShowHelpMarker("기본적으로는 사용 가능한 경우 FSR Anti-Lag 2.0/XeLL을 사용합니다."
-                       "이 설정으로 LatencyFlex를 대신 사용하도록 강제할 수 있습니다");
+        ShowHelpMarker("By default, FSR Anti-Lag 2.0/XeLL is used when available.\n"
+                       "This setting lets you force LatencyFlex instead");
         ImGui::EndDisabled();
 
         // Keep Force XeLL on the same line if LatencyFlex is visible
@@ -5288,8 +5289,8 @@ void MenuCommon::RenderFakenvapiSettings(RenderMenuContext& ctx)
     {
         config->ForceXeLL = forceXell;
     }
-    ShowHelpMarker("Intel이 아닌 카드에서 FG 없이 XeLL이 작동하도록 허용합니다."
-                   "\nFG 옵션을 비활성화합니다.\n\n재시작이 필요합니다");
+    ShowHelpMarker("Allows XeLL to work without FG on non-Intel cards.\n\nDisables FG "
+                   "options\n\nRequires a restart");
 
     if (activeForceXeLL != forceXell)
     {
@@ -5460,16 +5461,16 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 MARK_ALL_BACKENDS_CHANGED();
             }
         }
-        ShowHelpMarker("게임이 전달하는 값을 무시하고"
-                       "아래에서 설정한 값을 사용합니다");
+        ShowHelpMarker("Ignores the value sent by the game\n"
+                       "and uses the value set below");
 
         ImGui::SameLine(0.0f, 16.0f * menuResScale);
 
         float featuresCurrentSharpness = currentFeature->Sharpness();
         if (featuresCurrentSharpness > 0.0f)
-            ImGui::TextDisabled("(현재 선명도: %.3f)", featuresCurrentSharpness);
+            ImGui::TextDisabled("(Current sharpness: %.3f)", featuresCurrentSharpness);
         else
-            ImGui::TextDisabled("(현재 선명도: 비활성화)");
+            ImGui::TextDisabled("(Current sharpness: disabled)");
 
         ImGui::BeginDisabled(!config->OverrideSharpness.value_or_default());
 
@@ -5494,12 +5495,12 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
             if (bool rcas = config->RcasEnabled.value_or(rcasEnabled); ImGui::Checkbox("Enable RCAS/DA", &rcas))
                 config->RcasEnabled = rcas;
 
-            ShowHelpMarker("OptiScaler의 샤프닝 필터를 활성화합니다"
-                           "기본값으로는 게임이 제공하는 선명도 값을 사용합니다"
-                           "변경하려면 'Sharpness' 아래에서 'Override'를 선택하고"
-                           "슬라이더를 조정하세요"
-                           ""
-                           "일부 업스케일러에는 자체 샤프닝 필터가 있으므로\n이 옵션이 항상 필요한 것은 아닙니다");
+            ShowHelpMarker("Enable OptiScaler's sharpening filter\n"
+                           "By default uses a sharpening value provided by the game\n"
+                           "Select 'Override' under 'Sharpness' and adjust the slider\n"
+                           "to change it\n\n"
+                           "Some upscalers have their own sharpness filter, so this\n"
+                           "option is not always needed");
 
             ImGui::BeginDisabled(!config->RcasEnabled.value_or(rcasEnabled));
 
@@ -5510,9 +5511,9 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 Config::Instance()->SharpnessShader = SharpenShader::RCAS;
             }
 
-            ShowHelpMarker("AMD의 RCAS를 사용합니다"
-                           "Contrast 매개변수와"
-                           "MAS 지원을 추가하도록 수정된 버전입니다");
+            ShowHelpMarker("Use AMD's RCAS\n"
+                           "Modified to add Contrast parameter\n"
+                           "and MAS support");
 
             ImGui::SameLine(0.0f, 6.0f);
 
@@ -5521,11 +5522,11 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 Config::Instance()->SharpnessShader = SharpenShader::DepthAware;
             }
 
-            ShowHelpMarker("Depth Aware Sharpening(RCAS)을 사용합니다"
-                           "아티팩트가 적은 더 똑똑한 샤프닝이지만"
-                           "부하도 더 큽니다"
-                           ""
-                           "객체가 멀수록\n더 많은 샤프닝이 적용됩니다");
+            ShowHelpMarker("Use Depth Aware Sharpening (RCAS)\n"
+                           "Smarter sharpening with less artifacts,\n"
+                           "but also heavier\n\n"
+                           "The farther away is the object, the more\n"
+                           "sharpening is applied");
 
             ImGui::SameLine(0.0f, 6.0f);
 
@@ -5535,19 +5536,19 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 Config::Instance()->SharpnessShader = SharpenShader::LocalContrastDepthAware;
             }
 
-            ShowHelpMarker("Depth Aware Sharpening(DAS)을 사용합니다"
-                           "깊이를 인식하는 방향성 적응형 루마 샤프너입니다"
-                           "아티팩트가 적은 더 똑똑한 샤프닝이지만"
-                           "부하도 더 큽니다"
-                           ""
-                           "객체가 멀수록\n더 많은 샤프닝이 적용됩니다");
+            ShowHelpMarker("Use Depth Aware Sharpening (DAS)\n"
+                           "Depth-aware directional adaptive luma sharpener\n"
+                           "Smarter sharpening with less artifacts,\n"
+                           "but also heavier\n\n"
+                           "The farther away is the object, the more\n"
+                           "sharpening is applied");
 
             ImGui::Spacing();
 
             if (bool overrideMotionSharpness = config->MotionSharpnessEnabled.value_or_default();
                 ImGui::Checkbox("Enable Motion Adaptive Sharpness", &overrideMotionSharpness))
                 config->MotionSharpnessEnabled = overrideMotionSharpness;
-            ShowHelpMarker("움직임에 따라 선명도를 조정합니다");
+            ShowHelpMarker("Enables sharpness adjustments according to the motion");
 
             if (Config::Instance()->SharpnessShader.value_or_default() != SharpenShader::RCAS)
             {
@@ -5555,10 +5556,10 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                     ImGui::Checkbox("DA + MAS Debug", &overrideMSDebug))
                     config->MotionSharpnessDebug = overrideMSDebug;
 
-                ShowHelpMarker("DA + MAS 디버그 뷰를 활성화합니다"
-                               "DA가 감지한 가장자리에는 파란색 틴트가 표시됩니다"
-                               ""
-                               "붉은 영역일수록 더 많은 샤프닝이 적용되고\n녹색 영역은 샤프닝이 줄어듭니다");
+                ShowHelpMarker("Enable DA + MAS debug views\n"
+                               "Blue tint for DA detected edges\n\n"
+                               "More red areas will have more sharpness applied\n"
+                               "Green areas will get reduced sharpness");
 
                 if (auto ch = ScopedCollapsingHeader("Advanced DA Parameters"); ch.IsHeaderOpen())
                 {
@@ -5573,10 +5574,10 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                             config->DAClampOutput.reset();
                     }
 
-                    ShowHelpMarker("최종 이미지를 [0, 1] 범위로 제한합니다."
-                                   ""
-                                   "밝은 헤일로나 음수 색상 같은 오버슈트 아티팩트를 방지합니다."
-                                   "LDR 파이프라인에서는 권장되며, HDR에서는 톤매핑에 따라 선택적으로 사용합니다.\n\n설정하지 않으면 OptiScaler가 업스케일러의 HDR 플래그로 이를 제어합니다");
+                    ShowHelpMarker("Clamps the final image to the [0, 1] range.\n\n"
+                                   "Prevents overshoot artifacts such as bright halos or negative colors.\n"
+                                   "Recommended for LDR pipelines; optional for HDR depending on tone-mapping.\n\n"
+                                   "When not set OptiScaler controls it via upscalers HDR flag");
 
                     if (currentFeature->DepthLinear())
                     {
@@ -5584,21 +5585,21 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         if (ImGui::SliderFloat("Depth Bias", &depthBias, 0.005f, 0.03f, "%.4f"))
                             config->DADepthBias = depthBias;
 
-                        ShowHelpMarker("가장자리 감지 전에 작은 깊이 차이를 무시합니다.\n\n값이 높으면"
-                                       "사소한 깊이 변화로 인한 깜빡임과 노이즈가 줄어들지만 실제 지오메트리 가장자리가"
-                                       "부드러워질 수 있습니다.\n값이 낮으면"
-                                       "미세한 디테일이 유지되지만 가장자리 감지가 불안정해지거나 노이즈가 생길 수"
-                                       "있습니다.");
+                        ShowHelpMarker("Ignores small depth differences before edge detection.\n\n"
+                                       "Higher values reduce flickering and noise from minor depth changes, but may "
+                                       "soften real geometry edges.\n"
+                                       "Lower values preserve fine detail but can cause unstable or noisy edge "
+                                       "detection.");
 
                         float depthScale = config->DADepthScale.value_or(250.0f);
                         if (ImGui::SliderFloat("Depth Scale", &depthScale, 100.0f, 600.0f, "%.1f"))
                             config->DADepthScale = depthScale;
 
-                        ShowHelpMarker("깊이 가장자리를 가로지르는 샤프닝 감소 정도를 제어합니다.\n\n값이"
-                                       "높으면 객체 경계를 넘는 샤프닝을 더 적극적으로 막습니다(헤일로"
-                                       "감소).\n값이 낮으면"
-                                       "가장자리를 넘는 샤프닝이 더 많이 허용됩니다(더 선명하지만 위험도도"
-                                       "높아집니다).");
+                        ShowHelpMarker("Controls how strongly sharpening is reduced across depth edges.\n\n"
+                                       "Higher values more aggressively prevent sharpening across object boundaries "
+                                       "(reduces halos).\n"
+                                       "Lower values allow more sharpening to pass across edges (sharper but "
+                                       "riskier).");
                     }
                     else
                     {
@@ -5606,21 +5607,21 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         if (ImGui::SliderFloat("Depth Bias", &depthBias, 0.0001f, 0.003f, "%.4f"))
                             config->DADepthBias = depthBias;
 
-                        ShowHelpMarker("가장자리 감지 전에 작은 깊이 차이를 무시합니다.\n\n값이 높으면"
-                                       "사소한 깊이 변화로 인한 깜빡임과 노이즈가 줄어들지만 실제 지오메트리 가장자리가"
-                                       "부드러워질 수 있습니다.\n값이 낮으면"
-                                       "미세한 디테일이 유지되지만 가장자리 감지가 불안정해지거나 노이즈가 생길 수"
-                                       "있습니다.");
+                        ShowHelpMarker("Ignores small depth differences before edge detection.\n\n"
+                                       "Higher values reduce flickering and noise from minor depth changes, but may "
+                                       "soften real geometry edges.\n"
+                                       "Lower values preserve fine detail but can cause unstable or noisy edge "
+                                       "detection.");
 
                         float depthScale = config->DADepthScale.value_or(35.0f);
                         if (ImGui::SliderFloat("Depth Scale", &depthScale, 25.0f, 400.0f, "%.1f"))
                             config->DADepthScale = depthScale;
 
-                        ShowHelpMarker("깊이 가장자리를 가로지르는 샤프닝 감소 정도를 제어합니다.\n\n값이"
-                                       "높으면 객체 경계를 넘는 샤프닝을 더 적극적으로 막습니다(헤일로"
-                                       "감소).\n값이 낮으면"
-                                       "가장자리를 넘는 샤프닝이 더 많이 허용됩니다(더 선명하지만 위험도도"
-                                       "높아집니다).");
+                        ShowHelpMarker("Controls how strongly sharpening is reduced across depth edges.\n\n"
+                                       "Higher values more aggressively prevent sharpening across object boundaries "
+                                       "(reduces halos).\n"
+                                       "Lower values allow more sharpening to pass across edges (sharper but "
+                                       "riskier).");
                     }
 
                     if (ImGui::Button("Reset Depth Values"))
@@ -5636,7 +5637,7 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                     ImGui::Checkbox("Contrast Enabled", &contrastEnabled))
                     config->ContrastEnabled = contrastEnabled;
 
-                ShowHelpMarker("고대비 영역의 선명도를 제어합니다.");
+                ShowHelpMarker("Controls sharpness at high contrast areas.");
 
                 ImGui::BeginDisabled(!config->ContrastEnabled.value_or_default());
 
@@ -5644,8 +5645,8 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 if (ImGui::SliderFloat("Contrast", &contrast, -2.0f, 2.0f, "%.2f"))
                     config->Contrast = contrast;
 
-                ShowHelpMarker("양수 값은 고대비 영역의 선명도를 낮춥니다."
-                               "음수 값은 고대비 영역의 선명도를 높입니다.");
+                ShowHelpMarker("Positive values decrease sharpness at high contrast areas.\n"
+                               "Negative values increase sharpness at high contrast areas.");
 
                 ImGui::EndDisabled();
             }
@@ -5663,35 +5664,35 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                     if (bool overrideMSDebug = config->MotionSharpnessDebug.value_or_default();
                         ImGui::Checkbox("MAS Debug", &overrideMSDebug))
                         config->MotionSharpnessDebug = overrideMSDebug;
-                    ShowHelpMarker("더 붉은 영역일수록 더 많은 샤프닝이 적용됩니다"
-                                   "녹색 영역은 샤프닝이 줄어듭니다");
+                    ShowHelpMarker("Areas that are more red will have more sharpness applied\n"
+                                   "Green areas will get reduced sharpness");
                 }
 
                 float motionSharpness = config->MotionSharpness.value_or_default();
                 ImGui::SliderFloat("MotionSharpness", &motionSharpness, -1.0f, 1.0f, "%.3f");
                 config->MotionSharpness = motionSharpness;
 
-                ShowHelpMarker("움직임이 더하거나 뺄 수 있는 선명도의 최대치입니다."
-                               ""
-                               "음수 값은 움직임 중 샤프닝을 줄입니다(권장)."
-                               "양수 값은 움직임 중 샤프닝을 높입니다.\n\n최종 조정은 움직임에 비례하며 이 값이 상한입니다.");
+                ShowHelpMarker("Maximum amount of sharpness that motion can add or remove.\n\n"
+                               "Negative values reduce sharpening in motion (recommended).\n"
+                               "Positive values increase sharpening in motion.\n\n"
+                               "The final adjustment scales with motion and is capped at this value.");
 
                 float motionThreshod = config->MotionThreshold.value_or_default();
                 ImGui::SliderFloat("MotionThreshod", &motionThreshod, 0.0f, 100.0f, "%.2f");
                 config->MotionThreshold = motionThreshod;
 
-                ShowHelpMarker("움직임 기반 선명도 조정이 시작되기 위해 필요한 최소 움직임입니다."
-                               ""
-                               "값이 높으면 작은 움직임을 무시합니다(더 안정적).\n값이 낮으면 미세한 움직임에도 반응합니다(더 민감).");
+                ShowHelpMarker("Minimum motion required before motion-based sharpening adjustment begins.\n\n"
+                               "Higher values ignore small movements (more stable).\n"
+                               "Lower values react to subtle motion (more sensitive).");
 
                 float motionScale = config->MotionScaleLimit.value_or_default();
                 ImGui::SliderFloat("MotionRange", &motionScale, 0.01f, 100.0f, "%.2f");
                 config->MotionScaleLimit = motionScale;
 
-                ShowHelpMarker("효과가 0에서 최대치까지 올라가는 움직임 범위를 정의합니다."
-                               ""
-                               "임계값을 넘은 움직임은 이 범위에 매핑됩니다."
-                               "값이 크면 반응이 더 부드럽고 완만해집니다.\n값이 작으면 효과가 더 빠르고 강하게 반응합니다.");
+                ShowHelpMarker("Defines the motion range over which the effect ramps from zero to full strength.\n\n"
+                               "Values above the threshold are mapped into this range.\n"
+                               "Larger values make the response smoother and more gradual.\n"
+                               "Smaller values make the effect react more quickly and aggressively.");
 
                 ImGui::EndDisabled();
 
@@ -5717,9 +5718,9 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
             if (upOverride)
                 config->QualityRatioOverrideEnabled = false;
         }
-        ShowHelpMarker("설정한 값으로 모든 업스케일러 프리셋을 덮어씁니다"
-                       ""
-                       "1080p 화면에서 1.5x는 내부 해상도 720p를 의미합니다\n1080 / 1.5 = 720");
+        ShowHelpMarker("Overrides every upscaler preset with the set value\n\n"
+                       "1.5x on a 1080p screen means an internal res of 720p\n"
+                       "1080 / 1.5 = 720");
 
         if (bool qOverride = config->QualityRatioOverrideEnabled.value_or_default();
             ImGui::Checkbox("Override per quality preset", &qOverride))
@@ -5730,10 +5731,10 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 config->UpscaleRatioOverrideEnabled = false;
         }
 
-        ShowHelpMarker("각 프리셋의 배율을 개별적으로 덮어쓸 수 있습니다"
-                       "모든 게임이 모든 품질 프리셋을 지원하는 것은 아닙니다"
-                       ""
-                       "1080p 화면에서 1.5x는 내부 해상도 720p를 의미합니다\n1080 / 1.5 = 720");
+        ShowHelpMarker("Lets you override each preset's ratio individually\n"
+                       "Note that not every game supports every quality preset\n\n"
+                       "1.5x on a 1080p screen means internal resolution of 720p\n"
+                       "1080 / 1.5 = 720");
 
         if (config->UpscaleRatioOverrideEnabled.value_or_default())
         {
@@ -5794,12 +5795,12 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 ImGui::Checkbox("Enable", &_ssEnabled);
                 ImGui::EndDisabled();
 
-                ShowHelpMarker("이미지를 내부적으로 더 높은 출력 해상도로 업스케일한 뒤"
-                               "다시 디스플레이 해상도로 다운스케일합니다"
-                               ""
-                               "1.0 미만 값은 업스케일러 부담을 줄입니다"
-                               "1.0 초과 값은 성능을 대가로 이미지를 더 선명하게 만듭니다"
-                               "\n회색으로 비활성화되어 있다면 Git Wiki - Unreal Engine tweaks 문서를 확인하세요\n\n하단의 Target res와 총 배율을 참고하세요 (총 배율 최대 3.0!)");
+                ShowHelpMarker("Upscales the image internally to a higher output resolution\n"
+                               "then downscales it back to your display resolution\n\n"
+                               "Values <1.0 make the upscaler cheaper\n"
+                               "Values >1.0 make image sharper at the cost of performance\n\n"
+                               "If greyed out, please check Git Wiki - Unreal Engine tweaks\n\n"
+                               "Target res and total ratio at the bottom (max. total 3.0!)");
 
                 ImGui::SameLine(0.0f, 6.0f);
 
@@ -5906,9 +5907,9 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                 ReInitUpscaler();
             }
             ShowResetButton(&config->AutoExposure, "R");
-            ShowHelpMarker("일부 Unreal Engine 게임에서 필요합니다"
-                           ""
-                           "색상이 깜빡이거나\n객체에 고스팅 잔상이 남는다면 사용해 보세요");
+            ShowHelpMarker("Some Unreal Engine games need this\n\n"
+                           "Try using if colours flickering or\n"
+                           "objects have ghosting trails");
 
             ImGui::EndDisabled();
 
@@ -5936,11 +5937,11 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
             ImGui::EndDisabled();
 
             if (accessToReactiveMask)
-                ShowHelpMarker("Reactive mask 사용을 허용합니다"
-                               "DLSS에 전달되는 Reactive mask는"
-                               "FSR/XeSS와 조합하면 좋은 이미지를 만들지 못한다는 점에 유의하세요");
+                ShowHelpMarker("Allows the use of a Reactive mask\n"
+                               "Keep in mind that a Reactive mask sent to DLSS\n"
+                               "will not produce a good image in combination with FSR/XeSS");
             else
-                ShowHelpMarker("게임이 Reactive mask를 제공하지 않아 옵션이 비활성화되었습니다");
+                ShowHelpMarker("Option disabled because the game doesn't provide a Reactive mask");
 
             ImGui::EndTable();
 
@@ -5959,7 +5960,7 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         ReInitUpscaler();
                     }
                     ShowResetButton(&config->DepthInverted, "R##2");
-                    ShowHelpMarker("변경할 필요는 없을 것입니다");
+                    ShowHelpMarker("You shouldn't need to change it");
 
                     ImGui::TableNextColumn();
                     if (bool hdr = currentFeature->IsHdr(); ImGui::Checkbox("HDR", &hdr))
@@ -5968,7 +5969,7 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         ReInitUpscaler();
                     }
                     ShowResetButton(&config->HDR, "R##1");
-                    ShowHelpMarker("일부 게임의 보라색 색조 문제에 도움이 될 수 있습니다");
+                    ShowHelpMarker("Might help with purple hue in some games");
 
                     ImGui::TableNextColumn();
                     if (bool mv = !currentFeature->LowResMV(); ImGui::Checkbox("Display Res. MV", &mv))
@@ -5986,8 +5987,8 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         ReInitUpscaler();
                     }
                     ShowResetButton(&config->DisplayResolution, "R##4");
-                    ShowHelpMarker("주로 Unreal Engine 게임용 수정 사항입니다"
-                                   "화면 왼쪽 위 부분이 흐릿해집니다");
+                    ShowHelpMarker("Mostly a fix for Unreal Engine games\n"
+                                   "Top left part of the screen will be blurry");
 
                     ImGui::TableNextColumn();
 
@@ -5997,7 +5998,7 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         ReInitUpscaler();
                     }
                     ShowResetButton(&config->JitterCancellation, "R##3");
-                    ShowHelpMarker("지터가 미리 적용된 모션 데이터를 보내는 게임용 수정 사항입니다");
+                    ShowHelpMarker("Fix for games that send motion data with preapplied jitter");
 
                     ImGui::TableNextColumn();
                     ImGui::EndTable();
@@ -6016,7 +6017,7 @@ void MenuCommon::RenderActiveImageSettings(RenderMenuContext& ctx)
                         if (ImGui::SliderFloat("React. Mask Bias", &maskBias, 0.0f, 0.9f, "%.2f"))
                             config->DlssReactiveMaskBias = maskBias;
 
-                        ShowHelpMarker("0보다 큰 값은 Reactive mask 사용을 활성화합니다");
+                        ShowHelpMarker("Values above 0 activate usage of Reactive mask");
                     }
                     else
                     {
@@ -6096,7 +6097,7 @@ void MenuCommon::RenderMagnifierSettings(RenderMenuContext& ctx)
                 config->MagnifierStaticPosY = 50.0f;
             }
             ImGui::SameLine();
-            ImGui::TextDisabled("(현재 커서를 따라갑니다)");
+            ImGui::TextDisabled("(Currently following cursor)");
 
             float offsetX = config->MagnifierCursorOffsetX.value_or_default();
             if (ImGui::SliderFloat("Cursor Offset X", &offsetX, -300.0f, 300.0f, "%.0f px"))
@@ -6151,9 +6152,9 @@ void MenuCommon::RenderAdvancedSettings(RenderMenuContext& ctx)
             if (ImGui::Checkbox("Enable Extended Limits", &extendedLimits))
                 config->ExtendedLimits = extendedLimits;
 
-            ShowHelpMarker("품질 프리셋의 슬라이더 한계를 확장합니다"
-                           ""
-                           "이 옵션을 사용하면 해상도 감지 로직이 변경되며\n문제나 크래시가 발생할 수 있습니다!");
+            ShowHelpMarker("Extended sliders limit for quality presets\n\n"
+                           "Using this option changes resolution detection logic\n"
+                           "and might cause issues and crashes!");
         }
 
         bool pcShaders = config->UsePrecompiledShaders.value_or_default();
@@ -6172,13 +6173,13 @@ void MenuCommon::RenderAdvancedSettings(RenderMenuContext& ctx)
             if (bool drsMin = config->DrsMinOverrideEnabled.value_or_default();
                 ImGui::Checkbox("Override Minimum", &drsMin))
                 config->DrsMinOverrideEnabled = drsMin;
-            ShowHelpMarker("공식 DRS 한계를 무시하는 게임용 수정 사항입니다");
+            ShowHelpMarker("Fix for games ignoring official DRS limits");
 
             ImGui::TableNextColumn();
             if (bool drsMax = config->DrsMaxOverrideEnabled.value_or_default();
                 ImGui::Checkbox("Override Maximum", &drsMax))
                 config->DrsMaxOverrideEnabled = drsMax;
-            ShowHelpMarker("공식 DRS 한계를 무시하는 게임용 수정 사항입니다");
+            ShowHelpMarker("Fix for games ignoring official DRS limits");
 
             ImGui::EndTable();
         }
@@ -6931,13 +6932,13 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
             }
             ImGui::PopItemWidth();
 
-            ShowHelpMarker("DXGI Present 동기화 간격을 제어합니다. 이 값은"
-                           "스왑 체인이 수직 리프레시를 기다리는 방식을 결정합니다."
-                           ""
-                           "0  = 즉시 Present, VSync 대기 없음."
-                           "1  = 모든 리프레시에 동기화, 일반 VSync."
-                           "2 이상 = N번의 리프레시마다 Present, 유효 프레임 레이트 감소."
-                           "\n값이 높으면 테어링은 줄지만 지연 시간이 늘어나고 FPS가 제한될 수 있습니다.\n대부분의 게임에서는 최저 지연 시간을 위해 0을, 일반 VSync를 위해 1을 사용하세요.");
+            ShowHelpMarker("Controls the DXGI Present sync interval, which determines how\n"
+                           "the swap chain waits for vertical refresh.\n\n"
+                           "0  = Present immediately, no VSync wait.\n"
+                           "1  = Sync to every refresh, normal VSync.\n"
+                           "2+ = Present every N refreshes, reducing effective frame rate.\n\n"
+                           "Higher values can reduce tearing but may increase latency and cap FPS.\n"
+                           "For most games, use 0 for lowest latency or 1 for normal VSync.");
 
             ImGui::EndDisabled();
             ImGui::SameLine(0.0f, 16.0f);
@@ -6948,7 +6949,7 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
                 vsyncChanged = true;
             }
 
-            ShowHelpMarker("Force V-Sync On/Off와 Sync Interval 옵션을 초기화합니다");
+            ShowHelpMarker("Force V-Sync On/Off & Sync Interval options");
 
             if (vsyncChanged && state.activeFgOutput == FGOutput::XeFG && state.currentFG != nullptr)
             {
@@ -6971,10 +6972,10 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
                 _mipBias = config->MipmapBiasOverride.value();
 
             ImGui::SliderFloat("Mipmap Bias##2", &_mipBias, -15.0f, 15.0f, "%.6f");
-            ShowHelpMarker("고장 난 게임의 흐릿한 텍스처에 도움이 될 수 있습니다"
-                           "음수 값은 텍스처를 더 선명하게 만듭니다"
-                           "양수 값은 텍스처를 더 흐릿하게 만듭니다"
-                           "\n성능에는 미미한 영향만 줍니다");
+            ShowHelpMarker("Can help with blurry textures in broken games\n"
+                           "Negative values will make textures sharper\n"
+                           "Positive values will make textures more blurry\n\n"
+                           "Has a small performance impact");
 
             ImGui::BeginDisabled(!config->MipmapBiasOverride.has_value());
             {
@@ -6988,7 +6989,7 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
                         config->MipmapBiasFixedOverride = mbFixed;
                     }
 
-                    ShowHelpMarker("모든 텍스처에 동일한 오버라이드 값을 적용합니다");
+                    ShowHelpMarker("Apply same override value to all textures");
                 }
                 ImGui::EndDisabled();
 
@@ -7004,9 +7005,9 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
                         config->MipmapBiasScaleOverride = mbScale;
                     }
 
-                    ShowHelpMarker("오버라이드 값을 배율 승수로 적용합니다"
-                                   "스케일 모드를 사용할 때는 선명도를 높이려면"
-                                   "양수 오버라이드 값을 사용하세요!");
+                    ShowHelpMarker("Apply override value as scale multiplier\n"
+                                   "When using scale mode, please use positive\n"
+                                   "override values to increase sharpness!");
                 }
                 ImGui::EndDisabled();
 
@@ -7014,9 +7015,9 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
                 if (ImGui::Checkbox("MB Override All Textures", &mbAll))
                     config->MipmapBiasOverrideAll = mbAll;
 
-                ShowHelpMarker("모든 텍스처의 밉맵 값을 덮어씁니다"
-                               "평소에는 OptiScaler가 0 미만의"
-                               "밉맵 값만 덮어씁니다!");
+                ShowHelpMarker("Override all textures mipmap values\n"
+                               "Normally OptiScaler only overrides\n"
+                               "below zero mipmap values!");
             }
             ImGui::EndDisabled();
 
@@ -7121,7 +7122,7 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
             if (ImGui::Checkbox("Modify Compare", &afComp))
                 config->AnisotropyModifyComp = afComp;
 
-            ShowHelpMarker("비교 필터를 업데이트합니다");
+            ShowHelpMarker("Update comparison filters");
 
             ImGui::SameLine(0.0f, 6.0f);
 
@@ -7129,13 +7130,13 @@ void MenuCommon::RenderApiAndTextureSettings(RenderMenuContext& ctx)
             if (ImGui::Checkbox("Modify Min/Max", &afMinMax))
                 config->AnisotropyModifyMinMax = afMinMax;
 
-            ShowHelpMarker("min/max 필터를 업데이트합니다");
+            ShowHelpMarker("Update min/max filters");
 
             bool afSkipPoint = config->AnisotropySkipPointFilter.value_or_default();
             if (ImGui::Checkbox("Skip Point Filters", &afSkipPoint))
                 config->AnisotropySkipPointFilter = afSkipPoint;
 
-            ShowHelpMarker("포인트 필터 업데이트를 건너뜁니다");
+            ShowHelpMarker("Skip updating of point filters");
 
             ImGui::Text("Will might be applied after RESOLUTION/PRESET change !!!");
         }
@@ -7153,7 +7154,7 @@ void MenuCommon::RenderKeybindSettings(RenderMenuContext& ctx)
         ImGui::Spacing();
 
         ImGui::Text("Key combinations are currently NOT supported!");
-        ImGui::Text("Escape: 취소, Backspace 또는 해제 버튼: 단축키 없음");
+        ImGui::Text("Escape to cancel, Backspace to unbind");
         ImGui::Spacing();
 
         static auto menu = Keybind("Menu", 10);
@@ -7238,7 +7239,7 @@ void MenuCommon::RenderMainMenuGraphs(RenderMenuContext& ctx)
             {
                 ImGui::BeginTooltip();
 
-                ImGui::TextDisabled("셰이더별 내역:");
+                ImGui::TextDisabled("Per shader breakdown:");
                 if (ImGui::BeginTable("ShaderTimes", 2, ImGuiTableFlags_SizingStretchProp))
                 {
                     bool hasExtra = false;
@@ -7408,9 +7409,9 @@ void MenuCommon::RenderMainMenuBottomBar(RenderMenuContext& ctx)
         auto ctx = ImGui::GetCurrentContext();
         pIO->Platform_OpenInShellFn(ctx, "https://github.com/optiscaler/OptiScaler/wiki");
     }
-    ShowHelpMarker("클릭하면 기본 브라우저에서"
-                   "OptiScaler Wiki 페이지를 엽니다"
-                   "\n알려진 게임 문제와 우회 방법을 정리한 호환성 목록,\nFG 옵션 설명 및 기타 유용한 정보가 있습니다");
+    ShowHelpMarker("Click to open the OptiScaler Wiki page\nin your default browser\n\n"
+                   "Compatibility list with known game issues\nand workarounds, FG options explained\n"
+                   "and other useful info");
 
     ImGui::Spacing();
     ImGui::Separator();
@@ -7989,15 +7990,11 @@ void MenuCommon::Init(HWND InHwnd, bool isUWP)
         if (Config::Instance()->FontSize.has_value())
             fontSize = Config::Instance()->FontSize.value();
 
-        // Korean glyph ranges (Latin + Hangul Jamo + Hangul Syllables + Fullwidth)
-        static const ImWchar koRanges[] = { 0x0020, 0x00FF, 0x3131, 0x3163, 0xAC00, 0xD7A3, 0xFF00, 0xFFEF, 0 };
-        std::string ttfPath = Config::Instance()->TTFFontPath.has_value()
-                                  ? wstring_to_string(Config::Instance()->TTFFontPath.value())
-                                  : "C:\\Windows\\Fonts\\malgun.ttf";
-        ImFont* koFont = atlas->AddFontFromFileTTF(ttfPath.c_str(), fontSize, &fontConfig, koRanges);
-        if (koFont != nullptr)
+        if (Config::Instance()->TTFFontPath.has_value())
         {
-            io.FontDefault = koFont;
+            io.FontDefault =
+                atlas->AddFontFromFileTTF(wstring_to_string(Config::Instance()->TTFFontPath.value()).c_str(), fontSize,
+                                          &fontConfig, io.Fonts->GetGlyphRangesDefault());
         }
         else
         {
