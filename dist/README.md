@@ -42,6 +42,10 @@ already in place and needing no action:
 - `OptiScaler\nvngx_dlss.dll`, `nvngx_dlssd.dll`, `nvngx_dlssg.dll` are DLSS 310.9. OptiScaler
   searches its own folder ahead of the exe folder, so these are used without touching what the
   game ships.
+- `OptiScaler\dlssg_to_fsr3_amd_is_better.dll` is Nukem's dlssg-to-fsr3 (GPLv3,
+  https://github.com/Nukem9/dlssg-to-fsr3 — source and license terms there), the FSR3 backend
+  behind the "Nukem's" FG replacement on cards without native DLSSG. Sourced from the RHI
+  app's local cache; checksum recorded at packaging time.
 - `OptiScaler\streamline\sl.*.dll` are Streamline 2.14.
 
 Take the plain one if the game already has newer, or you keep your own set.

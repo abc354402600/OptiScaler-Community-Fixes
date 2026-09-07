@@ -421,7 +421,8 @@ FodyWeavers.xsd
 !external/directx_agility_sdk/lib/D3D12Core.dll
 
 # Streamline 2.14 and DLSS 310.9 redistributables, packaged into the build under OptiScaler
-# and OptiScaler/streamline.
+# and OptiScaler/streamline. Nukem's dlssg-to-fsr3 (GPLv3, see Licenses/) rides the nvngx
+# mirror so it lands beside OptiScaler.dll where Nvngx_Nukems loads it.
 !dist/streamline/*.dll
 !dist/nvngx/*.dll
 

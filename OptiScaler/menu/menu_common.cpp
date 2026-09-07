@@ -3406,17 +3406,30 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         }
 
         // Try to avoid having None selected when the gpu doesn't support DLSSG + some fallbacks
+        // Keep the menu default and the runtime selection together: the red
+        // "Save Settings and restart" banner compares state.activeFgNvngx
+        // against the effective config, so a volatile-only default here would
+        // re-trigger it on every menu open. Sync both sides.
         if (!supportsDlssg && (replaceFgOutputWithNvngx || showNvngxFgDowndown) &&
             config->FGNvngxReplacement.value_or_default() == FGNvngxReplacement::None)
         {
             if (state.nukemsFgFileAvailable)
+            {
                 config->FGNvngxReplacement.set_volatile_value(FGNvngxReplacement::Nukems);
+                state.activeFgNvngx = FGNvngxReplacement::Nukems;
+            }
 
             else if (state.artursFgFileAvailable)
+            {
                 config->FGNvngxReplacement.set_volatile_value(FGNvngxReplacement::Arturs);
+                state.activeFgNvngx = FGNvngxReplacement::Arturs;
+            }
 
             else if (FfxApiProxy::IsFGReady(false))
+            {
                 config->FGNvngxReplacement.set_volatile_value(FGNvngxReplacement::FFX);
+                state.activeFgNvngx = FGNvngxReplacement::FFX;
+            }
         }
 
         const bool nvngxFgChanged = (replaceFgOutputWithNvngx || showNvngxFgDowndown) &&

@@ -225,10 +225,23 @@ sl::Result StreamlineHooks::hkslInit(const sl::Preferences& pref, uint64_t sdkVe
             localPref.pathsToPlugins = storage.data();
             localPref.numPathsToPlugins = (uint32_t) storage.size();
 
-            if (!missingDlls.empty())
+            // Only warn about files the game actually needs from our set:
+            // skip optional plugins the game never loads through this path
+            // (e.g. sl.directsr.dll), so a clean bundle stays silent.
+            std::vector<std::string> actionableMissing;
+            for (const auto& missingDll : missingDlls)
+            {
+                std::string lower = missingDll;
+                to_lower_in_place(lower);
+                if (lower == "sl.directsr.dll")
+                    continue;
+                actionableMissing.push_back(missingDll);
+            }
+
+            if (!actionableMissing.empty())
             {
                 std::string toastMsg = "You are missing the following dlls from the streamline folder:\n";
-                for (const auto& missingDll : missingDlls)
+                for (const auto& missingDll : actionableMissing)
                 {
                     toastMsg += "- " + missingDll + "\n";
                 }
