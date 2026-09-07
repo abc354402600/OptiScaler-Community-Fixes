@@ -4,18 +4,6 @@
   <sub>Personal fork — Korean UI · MFG unlock · 20/30-series FG bundle</sub>
 </div>
 <br />
-
-## Table of Contents
-
-**1.** [**About**](#about)  
-**2.** [**How it works?**](#how-it-works)  
-**3.** [**Supported APIs and Upscalers**](#which-apis-and-upscalers-are-supported)  
-**4.** [**Installation**](#installation)  
-**5.** [**Known Issues**](#known-issues)  
-**6.** [**Compilation and Credits**](#compilation)  
-**7.** [**Wiki**](https://github.com/optiscaler/OptiScaler/wiki)
-
-<br />
 <div align="center">
 
 # OptiScaler Susemi Edition
