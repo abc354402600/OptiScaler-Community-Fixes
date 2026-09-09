@@ -363,11 +363,21 @@ void MfgUnlock::TryApply(HMODULE module)
     // loader callback waits on it would invert the lock order (loader lock -> patch mutex here
     // vs patch mutex -> loader lock there). Patch writes themselves are idempotent, so a raced
     // duplicate attempt is redundant work, never corruption; the first finisher wins the insert.
-    const std::string version = ModuleVersion(module);
-    const auto pathA = wstring_to_string(ModulePath(module));
+    const auto pathW = ModulePath(module);
+    const auto pathA = wstring_to_string(pathW);
+    LOG_INFO("MFG unlock: begin module {:p} ({})", (void*) module, pathA);
 
+    LOG_INFO("MFG unlock: reading module version...");
+    const std::string version = ModuleVersion(module);
+    LOG_INFO("MFG unlock: module version {}", version);
+
+    LOG_INFO("MFG unlock: scanning advertise gate...");
     const bool advertise = PatchAdvertise(module);
+    LOG_INFO("MFG unlock: advertise scan complete: {}", advertise);
+
+    LOG_INFO("MFG unlock: scanning validate gate...");
     const bool validate = PatchValidate(module);
+    LOG_INFO("MFG unlock: validate scan complete: {}", validate);
 
     // Default on where it applies: below Blackwell the unlock alone produces frames that do
     // not advance the picture, so the two belong together. dlssCapable is set from the same
@@ -378,7 +388,10 @@ void MfgUnlock::TryApply(HMODULE module)
                               gpu.nvidiaArchInfo.architecture_id <= NV_GPU_ARCHITECTURE_AD100;
 
     unsigned int kernels = 0;
-    if (Config::Instance()->FGDLSSGAdaBlackwellKernels.value_or(preBlackwell))
+    const bool useBlackwellKernels =
+        Config::Instance()->FGDLSSGAdaBlackwellKernels.value_or(preBlackwell);
+    LOG_INFO("MFG unlock: AdaBlackwellKernels effective value: {}", useBlackwellKernels);
+    if (useBlackwellKernels)
         kernels = RewriteBlackwellKernels(module);
 
     if (advertise && validate)

@@ -54,7 +54,12 @@ uintptr_t FindPattern(uintptr_t startAddress, uintptr_t maxSize, const char* mas
     }
 
     const auto dataStart = reinterpret_cast<const uint8_t*>(startAddress);
-    const auto dataEnd = dataStart + maxSize + 1;
+    // maxSize is already the number of bytes in the section/range.
+    // Do not probe one byte past the mapped range.
+    const auto dataEnd = dataStart + maxSize;
+
+    if (pattern.empty() || maxSize < pattern.size())
+        return NULL;
 
     auto sig = std::search(dataStart, dataEnd, pattern.begin(), pattern.end(),
                            [](uint8_t currentByte, std::pair<uint8_t, bool> Pattern)
