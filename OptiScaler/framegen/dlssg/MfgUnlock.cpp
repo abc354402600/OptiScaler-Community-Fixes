@@ -340,6 +340,10 @@ static std::map<HMODULE, MfgUnlock::Status> g_patched; // completed attempts onl
 static MfgUnlock::Status g_aggregate {};
 static std::atomic<unsigned int> g_publishedMax { 0 };
 static std::atomic<bool> g_anyModule { false };
+// Reading a DLL's version resources can re-enter our LoadLibrary hooks for that same DLL.
+// Keep a per-thread stack so a nested TryApply for an already in-flight module returns instead
+// of recursively entering ModuleVersion again. Other threads are still free to race as before.
+static thread_local std::vector<HMODULE> g_patchStack;
 
 static std::wstring ModulePath(HMODULE module)
 {
@@ -357,6 +361,20 @@ void MfgUnlock::TryApply(HMODULE module)
         if (g_patched.contains(module))
             return; // same handle already processed; concurrent duplicates converge below
     }
+
+    if (std::find(g_patchStack.begin(), g_patchStack.end(), module) != g_patchStack.end())
+    {
+        LOG_TRACE("MFG unlock: reentrant attempt skipped for module {:p}", (void*) module);
+        return;
+    }
+
+    g_patchStack.push_back(module);
+    struct PatchStackGuard
+    {
+        std::vector<HMODULE>& stack;
+
+        ~PatchStackGuard() { stack.pop_back(); }
+    } patchStackGuard { g_patchStack };
 
     // Everything below runs OUTSIDE the mutex: version/file APIs can pull in system DLLs on
     // first use, and GPU discovery touches NVAPI. Holding our lock across those while a nested
