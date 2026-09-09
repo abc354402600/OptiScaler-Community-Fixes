@@ -194,6 +194,8 @@ static const QuirkEntry quirkTable[] = {
                 GameQuirk::DisableDxgiSpoofing, GameQuirk::RestoreComputeSigOnNvidia),
     QUIRK_ENTRY("pragmata.exe", GameQuirk::RestoreComputeSigOnNonNvidia, GameQuirk::DisableDxgiSpoofing,
                 GameQuirk::RestoreComputeSigOnNvidia, GameQuirk::PregmataFixDLSSModes),
+    QUIRK_ENTRY("onimushawots.exe", GameQuirk::RestoreComputeSigOnNonNvidia, GameQuirk::DisableDxgiSpoofing,
+                GameQuirk::RestoreComputeSigOnNvidia),
     QUIRK_ENTRY("onimushawots_demo.exe", GameQuirk::RestoreComputeSigOnNonNvidia, GameQuirk::DisableDxgiSpoofing,
                 GameQuirk::RestoreComputeSigOnNvidia),
 
