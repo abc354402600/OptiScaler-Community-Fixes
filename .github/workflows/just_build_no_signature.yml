@@ -115,7 +115,19 @@ jobs:
     - name: Add the readme
       run: Copy-Item ${{ github.workspace }}\dist\README.md ${{ github.workspace }}\x64\Release\a\README.md
 
-    # Cut before the redistributables land, so this archive carries the loader alone.
+    # Always stage the validated runtime set before creating the normal artifact.
+    # This prevents the default download from silently falling back to the game's
+    # older DLSS / Streamline copies.
+    - name: Add Streamline to default artifact
+      run: |
+        $target = "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline"
+        New-Item -ItemType Directory -Force -Path $target | Out-Null
+        Copy-Item ${{ github.workspace }}\dist\streamline\* $target
+
+    - name: Add NGX snippets to default artifact
+      run: Copy-Item ${{ github.workspace }}\dist\nvngx\* ${{ github.workspace }}\x64\Release\a\OptiScaler\
+
+    # The normal artifact is now the full DLSS 310.9 + Streamline 2.14 bundle.
     - name: Compress the artifact
       run: |
         $zipName = "${{ steps.get_version.outputs.filename }}.7z"

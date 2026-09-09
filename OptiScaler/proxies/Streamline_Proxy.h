@@ -80,8 +80,8 @@ class StreamlineProxy
             State::DisableChecks(owner);
         }
 
-        std::filesystem::path localSlPath(Config::Instance()->MainDllPath.value());
-        localSlPath = localSlPath / L"streamline"; // Hardcoded streamline folder
+        std::filesystem::path mainDllPath(Config::Instance()->MainDllPath.value());
+        std::filesystem::path localSlPath = mainDllPath / L"streamline"; // Hardcoded streamline folder
 
         std::filesystem::path slInterposerPath = localSlPath / L"sl.interposer.dll";
         LOG_INFO(L"Trying to load sl.interposer.dll from dll path: {}", slInterposerPath.wstring());
@@ -94,7 +94,15 @@ class StreamlineProxy
             State::Instance().optiSlInterposer = _dll;
             auto slCommonPath = localSlPath / L"sl.common.dll";
             State::Instance().optiSlCommon = NtdllProxy::LoadLibraryExW_Ldr(slCommonPath.c_str(), NULL, NULL);
-            auto dlssgPath = localSlPath / L"nvngx_dlssg.dll"; // TODO: maybe some search?
+
+            // Release bundles place NVIDIA NGX snippets directly under OptiScaler\,
+            // while Streamline itself lives under OptiScaler\streamline\.
+            // Prefer the bundled DLSS-G snippet so the local Streamline 2.14 instance
+            // cannot silently fall back to an older game/driver copy.
+            auto dlssgPath = mainDllPath / L"nvngx_dlssg.dll";
+            if (!std::filesystem::exists(dlssgPath))
+                dlssgPath = localSlPath / L"nvngx_dlssg.dll"; // legacy/manual layout fallback
+
             State::Instance().optiDLSSG = NtdllProxy::LoadLibraryExW_Ldr(dlssgPath.c_str(), NULL, NULL);
 
             return HookStreamline(_dll);
@@ -315,14 +323,34 @@ class StreamlineProxy
         pref.flags &= ~sl::PreferenceFlags::eLoadDownloadedPlugins;
 
         auto exePath = Util::ExePath().remove_filename();
-        auto nvngxDlssPath = Util::FindFilePath(exePath, "nvngx_dlss.dll");
-        auto nvngxDlssDPath = Util::FindFilePath(exePath, "nvngx_dlssd.dll");
-        auto nvngxDlssGPath = Util::FindFilePath(exePath, "nvngx_dlssg.dll");
+        std::filesystem::path mainDllPath(Config::Instance()->MainDllPath.value());
+
+        // Prefer the runtime shipped with this build. Searching from the exe first
+        // can select the game's older DLSS copy before OptiScaler's bundled 310.9.
+        auto findBundledNgxFirst = [&](const std::filesystem::path& fileName)
+            -> std::optional<std::filesystem::path>
+        {
+            auto direct = mainDllPath / fileName;
+            if (std::filesystem::exists(direct) && std::filesystem::is_regular_file(direct))
+            {
+                LOG_INFO(L"Using bundled {} from {}", fileName.wstring(), direct.wstring());
+                return direct;
+            }
+
+            if (auto bundled = Util::FindFilePath(mainDllPath, fileName); bundled.has_value())
+                return bundled;
+
+            return Util::FindFilePath(exePath, fileName);
+        };
+
+        auto nvngxDlssPath = findBundledNgxFirst(L"nvngx_dlss.dll");
+        auto nvngxDlssDPath = findBundledNgxFirst(L"nvngx_dlssd.dll");
+        auto nvngxDlssGPath = findBundledNgxFirst(L"nvngx_dlssg.dll");
 
         std::vector<std::wstring> pathStorage;
 
-        std::filesystem::path mainDllPath(Config::Instance()->MainDllPath.value());
-        mainDllPath = mainDllPath / L"streamline";
+        std::filesystem::path localSlPath = mainDllPath / L"streamline";
+        pathStorage.push_back(localSlPath.wstring());
         pathStorage.push_back(mainDllPath.wstring());
 
         if (nvngxDlssGPath.has_value())
