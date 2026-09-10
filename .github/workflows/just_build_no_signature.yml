@@ -3,22 +3,20 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Build (No Signing)
+name: Build Aurora (No Signing) / 构建 Aurora（未签名）
 
 on:
   workflow_dispatch:
   push:
-    branches: [ "dlss-neural-rendering" ]
+    branches: [ "aurora" ]
 #  pull_request:
 #    branches: [ "master" ]
-    
+
 env:
   # Path to the solution file relative to the root of the project.
   SOLUTION_FILE_PATH: .
 
   # Configuration type to build.
-  # You can convert this to a build matrix if you need coverage of multiple configuration types.
-  # https://docs.github.com/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
   BUILD_CONFIGURATION: Release
 
 permissions:
@@ -30,46 +28,42 @@ jobs:
     environment: Build
 
     steps:
-    - uses: actions/checkout@v6
+    - name: Checkout / 检出源码
+      uses: actions/checkout@v6
       with:
         submodules: 'true'
-        
-    - name: Extract Version
+
+    - name: Extract version / 读取版本号
       id: get_version
       working-directory: ${{ github.workspace }}
       shell: powershell
       run: |
-        # Ensure the file exists before proceeding
         $resourceFile = ".\OptiScaler\resource.h"
         if (-Not (Test-Path $resourceFile)) {
             Write-Error "File not found: $resourceFile"
             exit 1
         }
-        
-        # Helper function to extract the first matching line for a version component
+
         function Get-Version-Component {
             param (
                 [string]$pattern,
                 [string]$replacement
             )
-            # Use Select-String and take only the first match
+
             $line = Get-Content $resourceFile | Select-String -Pattern $pattern | Select-Object -First 1
             if ($line) {
                 return ($line.Line -replace $replacement).Trim()
-            } else {
-                Write-Error "Pattern not found: $pattern"
-                exit 1
             }
+
+            Write-Error "Pattern not found: $pattern"
+            exit 1
         }
-        
-        # Extract version components (only the first match for each pattern)
+
         $majorVersion = Get-Version-Component 'VER_MAJOR_VERSION' '#define VER_MAJOR_VERSION\s+'
         $minorVersion = Get-Version-Component 'VER_MINOR_VERSION' '#define VER_MINOR_VERSION\s+'
         $hotfixVersion = Get-Version-Component 'VER_HOTFIX_VERSION' '#define VER_HOTFIX_VERSION\s+'
         $buildVersion = Get-Version-Component 'VER_BUILD_NUMBER' '#define VER_BUILD_NUMBER\s+'
-        
-        # Release flavour and fork tag, so the archive name matches VER_PRODUCT_VERSION_STR.
-        # Anchoring on #define skips the #ifdef and #ifndef lines that carry the same names.
+
         $resourceLines = Get-Content $resourceFile
         $devRelease = $resourceLines | Select-String -Pattern '^\s*#define\s+VER_DEV_RELEASE' -Quiet
         $forkLine = $resourceLines | Select-String -Pattern '^\s*#define\s+VER_FORK_TAG' | Select-Object -First 1
@@ -79,94 +73,80 @@ jobs:
 
         if ($devRelease) { $suffix = "-dev" } else { $suffix = "-pre$buildVersion" }
 
-        # Merge into a single version string
         $version = "v$majorVersion.$minorVersion.$hotfixVersion$suffix$forkTag"
-        
-        # Get the current date in a specific format (e.g., YYYYMMDD)
         $date = Get-Date -Format "yyyyMMdd"
-        
-        # Construct the output filename with version and date
-        $outputFileName = "OptiScaler_${version}_${date}"
-        
-        # Output the generated filename
+        $outputFileName = "OptiScaler_Aurora_${version}_${date}"
+
         Write-Output "Generated Filename: $outputFileName"
-        
-        # Write outputs to GITHUB_OUTPUT
         "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
         "filename=$outputFileName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
-        
+
       continue-on-error: false
-      
-    - name: Debug Outputs
+
+    - name: Debug outputs / 检查版本信息
       run: |
         echo "Version: ${{ steps.get_version.outputs.version }}"
         echo "Filename: ${{ steps.get_version.outputs.filename }}"
-        
-    - name: Add MSBuild to PATH
+
+    - name: Add MSBuild to PATH / 配置 MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build
+    - name: Build / 构建
       working-directory: ${{env.GITHUB_WORKSPACE}}
-      # Add additional options to the MSBuild command line here (like platform or verbosity level).
-      # See https://docs.microsoft.com/visualstudio/msbuild/msbuild-command-line-reference
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /verbosity:minimal
-      
-    # Into the build output, so the glob below picks it up with everything else.
-    - name: Add the readme
+
+    - name: Add README / 添加说明文档
       run: Copy-Item ${{ github.workspace }}\dist\README.md ${{ github.workspace }}\x64\Release\a\README.md
 
-    # Always stage the validated runtime set before creating the normal artifact.
-    # This prevents the default download from silently falling back to the game's
-    # older DLSS / Streamline copies.
-    - name: Add Streamline to default artifact
+    # Streamline 2.14 is included in every Aurora package.
+    - name: Add Streamline 2.14 / 添加 Streamline 2.14
+      shell: powershell
       run: |
         $target = "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline"
         New-Item -ItemType Directory -Force -Path $target | Out-Null
         Copy-Item ${{ github.workspace }}\dist\streamline\* $target
 
-    - name: Add NGX snippets to default artifact
-      run: Copy-Item ${{ github.workspace }}\dist\nvngx\* ${{ github.workspace }}\x64\Release\a\OptiScaler\
+    # DLSS 310.9 snippets already tracked in dist/nvngx are included in every Aurora package.
+    - name: Add DLSS 310.9 snippets / 添加 DLSS 310.9 运行库
+      shell: powershell
+      run: |
+        $target = "${{ github.workspace }}\x64\Release\a\OptiScaler"
+        New-Item -ItemType Directory -Force -Path $target | Out-Null
+        Copy-Item ${{ github.workspace }}\dist\nvngx\* $target
 
-    # The normal artifact is now the full DLSS 310.9 + Streamline 2.14 bundle.
-    - name: Compress the artifact
+    # nvngx_dlssnr.dll is too large for normal Git and public forks cannot upload new LFS objects.
+    # Keep it as a dedicated Release asset, download it at build time, and verify the exact tested file.
+    - name: Add DLSS Neural Rendering runtime / 添加 DLSS 神经渲染运行库
+      shell: powershell
+      run: |
+        $url = "https://github.com/abc354402600/OptiScaler-Community-Fixes/releases/download/aurora-runtime-dlssnr-310.8/nvngx_dlssnr.dll"
+        $target = "${{ github.workspace }}\x64\Release\a\OptiScaler\nvngx_dlssnr.dll"
+        $expectedSha256 = "e67dee209320cdafe0e93e45675d7aa34323a53acc57a72b2e40a181581c989a"
+
+        $ProgressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri $url -OutFile $target
+
+        $actualSha256 = (Get-FileHash $target -Algorithm SHA256).Hash.ToLowerInvariant()
+        if ($actualSha256 -ne $expectedSha256) {
+            Write-Error "nvngx_dlssnr.dll SHA256 mismatch. Expected $expectedSha256, got $actualSha256"
+            exit 1
+        }
+
+        Write-Output "DLSS Neural Rendering runtime verified: $actualSha256"
+
+    - name: Package Aurora / 打包 Aurora
+      shell: powershell
       run: |
         $zipName = "${{ steps.get_version.outputs.filename }}.7z"
         7z a -r ${{ github.workspace }}\$zipName ${{ github.workspace }}\x64\Release\a\*.*
 
       continue-on-error: false
 
-    - uses: actions/upload-artifact@v7.0.0
+    - name: Upload Aurora artifact / 上传 Aurora 构建产物
+      uses: actions/upload-artifact@v7.0.0
       with:
         name: '${{ steps.get_version.outputs.filename }}'
         path: '${{ github.workspace }}\${{ steps.get_version.outputs.filename }}.7z'
-        archive: false
-        compression-level: 0
-        if-no-files-found: error
-
-    # Streamline 2.14. A game carrying an older set stops at 2X whatever the ini asks for, and the
-    # recovery step in the readme is to copy these over the ones it ships.
-    - name: Add Streamline
-      run: |
-        $target = "${{ github.workspace }}\x64\Release\a\OptiScaler\streamline"
-        New-Item -ItemType Directory -Force -Path $target | Out-Null
-        Copy-Item ${{ github.workspace }}\dist\streamline\* $target
-
-    # DLSS 310.9 snippets. OptiScaler searches its own folder ahead of the exe folder, so these
-    # are picked up without touching what the game ships. nvngx_dlssnr.dll is not among them.
-    - name: Add NGX snippets
-      run: Copy-Item ${{ github.workspace }}\dist\nvngx\* ${{ github.workspace }}\x64\Release\a\OptiScaler\
-
-    - name: Compress the artifact with the redistributables
-      run: |
-        $zipName = "${{ steps.get_version.outputs.filename }}_with_DLSS.7z"
-        7z a -r ${{ github.workspace }}\$zipName ${{ github.workspace }}\x64\Release\a\*.*
-
-      continue-on-error: false
-
-    - uses: actions/upload-artifact@v7.0.0
-      with:
-        name: '${{ steps.get_version.outputs.filename }}_with_DLSS'
-        path: '${{ github.workspace }}\${{ steps.get_version.outputs.filename }}_with_DLSS.7z'
         archive: false
         compression-level: 0
         if-no-files-found: error
