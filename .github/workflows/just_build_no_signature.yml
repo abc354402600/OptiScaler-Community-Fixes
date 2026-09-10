@@ -98,7 +98,7 @@ jobs:
     - name: Add DLSS Neural Rendering runtime / 添加 DLSS 神经渲染运行库
       shell: powershell
       run: |
-        $url = "https://github.com/abc354402600/OptiScaler-Community-Fixes/releases/download/aurora-runtime-dlssnr-310.8/nvngx_dlssnr.dll"
+        $url = "https://github.com/abc354402600/OptiScaler-Aurora/releases/download/aurora-runtime-dlssnr-310.8/nvngx_dlssnr.dll"
         $target = "${{ github.workspace }}\x64\Release\a\OptiScaler\nvngx_dlssnr.dll"
         $expectedSha256 = "e67dee209320cdafe0e93e45675d7aa34323a53acc57a72b2e40a181581c989a"
 
