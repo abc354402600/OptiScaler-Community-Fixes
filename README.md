@@ -1,3 +1,62 @@
+# OptiScaler Aurora / OptiScaler 极光版
+
+**Community compatibility-enhanced build based on OptiScaler forks.**  
+**基于 OptiScaler 分支的社区兼容性增强构建。**
+
+Aurora focuses on practical game compatibility, newer NVIDIA runtime integration, and tested RTX 40-series Multi Frame Generation workflows while keeping the upstream OptiScaler foundation intact.  
+Aurora 重点关注实际游戏兼容性、较新的 NVIDIA 运行库集成，以及经过测试的 RTX 40 系多帧生成方案，同时保留上游 OptiScaler 的核心基础。
+
+> [!IMPORTANT]
+> **Aurora is a community fork and is not an official OptiScaler, NVIDIA, Capcom, or Hotta Studio release.**  
+> **Aurora 是社区分支，并非 OptiScaler、NVIDIA、Capcom 或 Hotta Studio 的官方版本。**
+
+## Aurora v1.0 Highlights / Aurora v1.0 主要特性
+
+- **RTX 40-series MFG unlock, up to 6X where supported and tested.**  
+  **RTX 40 系多帧生成解锁，在支持并通过测试的环境中最高可达 6X。**
+
+- **Bundled NVIDIA DLSS 310.9 runtime.**  
+  **集成 NVIDIA DLSS 310.9 运行库。**
+
+- **Bundled NVIDIA Streamline 2.14 runtime.**  
+  **集成 NVIDIA Streamline 2.14 运行库。**
+
+- **Bundled DLSS Neural Rendering 310.8 runtime.**  
+  **集成 DLSS Neural Rendering 310.8 / DLSS 神经渲染 310.8 运行库。**
+
+- **Onimusha: Way of the Sword / 鬼武者：剑之道**  
+  Verified RTX 40-series 6X MFG support with the Aurora compatibility changes.  
+  已验证 Aurora 兼容性修改可在 RTX 40 系显卡上启用 6X 多帧生成。
+
+- **Neverness to Everness / 异环**  
+  Fixed the instant crash that occurred when enabling **Unlock MFG on RTX 40** in-game; 6X MFG has been verified on an RTX 4080 Laptop GPU.  
+  修复游戏内启用 **Unlock MFG on RTX 40 / 解锁 RTX 40 多帧生成** 时的瞬间闪退；已在 RTX 4080 Laptop GPU 上验证 6X 多帧生成。
+
+## Known Limitations / 已知限制
+
+- **DLSS Neural Rendering is experimental and remains game-dependent.**  
+  **DLSS 神经渲染仍属于实验性功能，兼容性取决于具体游戏。**
+
+- **Run inside the upscaler / DualFeature is not universally compatible and may cause visual corruption or evaluation failures in some games.**  
+  **Run inside the upscaler / DualFeature 并非所有游戏都兼容，在部分游戏中可能出现画面异常或功能执行失败。**
+
+- **Multi Frame Generation support depends on the game, NVIDIA runtime, GPU, and game-specific implementation.**  
+  **多帧生成是否可用取决于游戏、NVIDIA 运行库、显卡以及具体游戏实现。**
+
+> [!CAUTION]
+> **Do not use this mod with online games or anti-cheat protected environments unless you fully understand the risk.**  
+> **不要在联网游戏或受反作弊保护的环境中使用本 Mod，除非你完全了解潜在风险。**
+
+## Upstream & Credits / 上游项目与致谢
+
+Aurora is built on the work of the OptiScaler community and related forks. The original project, authors, contributors, licences, documentation, and credits remain fully respected.  
+Aurora 基于 OptiScaler 社区及相关分支的工作成果。原项目、作者、贡献者、许可证、文档与致谢信息均予以完整保留和尊重。
+
+The original upstream README is preserved below for reference and compatibility documentation.  
+下方保留原上游 README，作为功能、兼容性与文档参考。
+
+---
+
 <div align="center">
 
   ![Logo](https://github.com/user-attachments/assets/c7dad5da-0b29-4710-8a57-b58e4e407abd)
