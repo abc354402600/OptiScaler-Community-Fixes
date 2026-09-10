@@ -1,5 +1,6 @@
 REM Setup OptiScaler for your game
 @echo off
+chcp 65001 >nul
 cls
 echo  ::::::::  :::::::::  ::::::::::: :::::::::::  ::::::::   ::::::::      :::     :::        :::::::::: :::::::::  
 echo :+:    :+: :+:    :+:     :+:         :+:     :+:    :+: :+:    :+:   :+: :+:   :+:        :+:        :+:    :+: 
@@ -467,6 +468,7 @@ setlocal DisableDelayedExpansion
 
 (
 echo @echo off
+echo chcp 65001 ^>nul
 echo setlocal EnableDelayedExpansion
 echo cls
 echo echo  ::::::::  :::::::::  ::::::::::: :::::::::::  ::::::::   ::::::::      :::     :::        :::::::::: :::::::::  
