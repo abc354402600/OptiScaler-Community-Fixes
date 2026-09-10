@@ -21,6 +21,9 @@ Aurora 重点关注实际游戏兼容性、较新的 NVIDIA 运行库集成，�
 - **Bundled NVIDIA Streamline 2.14 runtime.**  
   **集成 NVIDIA Streamline 2.14 运行库。**
 
+- **Automatic game-local DLSS / Streamline Runtime Sync with backup, self-check and uninstall restore.**<br>
+  **自动同步游戏自带的 DLSS / Streamline 运行库，并提供备份、自检与卸载恢复。**
+
 - **Bundled DLSS Neural Rendering 310.8 runtime.**  
   **集成 DLSS Neural Rendering 310.8 / DLSS 神经渲染 310.8 运行库。**
 

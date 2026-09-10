@@ -391,6 +391,25 @@ if errorlevel 1 (
     goto end
 )
 
+REM --- Aurora Runtime Sync / Aurora 运行库同步 -----------------------------------------------
+echo.
+reg query HKEY_CURRENT_USER\Software\Wine\DllOverrides >nul 2>&1
+if !errorlevel!==0 (
+    echo Aurora Runtime Sync skipped under Wine because Windows PowerShell is required.
+) else if exist "%~dp0runtime_sync.ps1" (
+    echo Running Aurora Runtime Sync...
+    echo 正在运行 Aurora 运行库同步...
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0runtime_sync.ps1" -Mode Install -InstallDir "%~dp0."
+    if errorlevel 1 (
+        echo WARNING: Aurora Runtime Sync reported an error. Setup will continue.
+        echo 警告：Aurora 运行库同步报告错误，安装将继续。
+    )
+) else (
+    echo WARNING: runtime_sync.ps1 was not found. Skipping runtime synchronization.
+    echo 警告：未找到 runtime_sync.ps1，跳过运行库同步。
+)
+echo.
+
 goto create_uninstaller
 
 :create_uninstaller_return
@@ -406,46 +425,32 @@ echo.
 
 set setupSuccess=true
 
-REM --- DLSS 5 Neural Rendering ---------------------------------------------------------------
-REM The model ships in an NVIDIA driver package and cannot be redistributed here, so the user has
-REM to supply it. Saying where it goes, and whether it is already there, heads off the single most
-REM common reason for the feature to sit silently disabled.
+REM --- DLSS Neural Rendering / DLSS 神经渲染 -----------------------------------------------
 echo.
 echo  ------------------------------------------------------------------
-echo   DLSS 5 Neural Rendering
+echo   DLSS Neural Rendering / DLSS 神经渲染
 echo  ------------------------------------------------------------------
 echo.
-if exist "nvngx_dlssnr.dll" (
-    echo   nvngx_dlssnr.dll found here. Neural Rendering can run.
+if exist "%~dp0OptiScaler\nvngx_dlssnr.dll" (
+    echo   Aurora DLSS Neural Rendering runtime found.
+    echo   已找到 Aurora DLSS 神经渲染运行库。
 ) else (
-    echo   nvngx_dlssnr.dll was NOT found in this folder.
-    echo.
-    echo   Neural Rendering needs it. It cannot ship with OptiScaler because
-    echo   it comes from an NVIDIA driver package, so copy it into THIS
-    echo   folder - the same one holding the game executable and the file
-    echo   OptiScaler was just renamed to.
-    echo.
-    echo   One copy per game. There is no shared or system-wide location.
+    echo   WARNING: OptiScaler\nvngx_dlssnr.dll was not found.
+    echo   警告：未找到 OptiScaler\nvngx_dlssnr.dll，DLSS 神经渲染可能不可用。
 )
 echo.
-echo   Two similarly named files matter here, one character apart:
+echo   Neural Rendering is experimental and game-dependent.
+echo   DLSS 神经渲染属于实验性功能，兼容性取决于具体游戏。
+echo   Enable it in the OptiScaler overlay under "DLSS Neural Rendering".
+echo   可在 OptiScaler 菜单的 "DLSS Neural Rendering" 中启用。
 echo.
-echo     nvngx.dll_dlssnr.dll   ships in this package  ^(about 13 KB^)
-echo     nvngx_dlssnr.dll       you supply it          ^(about 165 MB^)
-echo.
-echo   To check you have the right file: Properties ^> Details should
-echo   read "NVIDIA DLSSNR" at about 165 MB. A file that size named
-echo   nvngx_dlssd.dll is this model misnamed, not Ray Reconstruction -
-echo   installing it as Ray Reconstruction breaks that instead.
-echo.
-echo   Neural Rendering is OFF by default. Turn it on in the OptiScaler
-echo   overlay under "DLSS Neural Rendering", or set Enabled=true under
-echo   the DlssNr section of OptiScaler.ini.
-echo.
-echo   Needs an RTX 50 series card and a driver new enough to ship the
-echo   model. If it cannot run, the overlay says why rather than failing
-echo   quietly.
-echo.
+if exist "%~dp0Check_DLSS_Runtime.bat" (
+    echo   After a launcher verifies or updates the game, run Check_DLSS_Runtime.bat
+    echo   to check and repair game-local DLSS / Streamline runtime files.
+    echo   游戏启动器验证或更新文件后，可运行 Check_DLSS_Runtime.bat 自检并修复
+    echo   游戏自带的 DLSS / Streamline 运行库。
+    echo.
+)
 
 :end
 pause
@@ -509,6 +514,26 @@ echo set /p removeChoice="Waiting - "
 echo echo.
 
 echo if "%%removeChoice%%"=="1" ^(
+echo     if exist "%%~dp0runtime_sync.ps1" ^(
+echo         echo.
+echo         echo Restoring game DLSS / Streamline runtime files managed by Aurora...
+echo         powershell -NoProfile -ExecutionPolicy Bypass -File "%%~dp0runtime_sync.ps1" -Mode Restore -InstallDir "%%~dp0."
+echo         if errorlevel 1 echo ERROR: Aurora Runtime Sync restore failed.
+echo         if errorlevel 1 echo Aurora was NOT removed so the restore backup is preserved. Close the game and retry.
+echo         if errorlevel 1 pause
+echo         if errorlevel 1 exit /b 1
+echo         echo.
+echo     ^)
+echo     if not exist "%%~dp0runtime_sync.ps1" ^(
+echo         if exist "%%~dp0OptiScaler\RuntimeSync\manifest.json" ^(
+echo             echo ERROR: runtime_sync.ps1 is missing, but Aurora restore data still exists.
+echo             echo Aurora was NOT removed to avoid losing the restore backup. Restore runtime_sync.ps1 and retry.
+echo             echo 错误：runtime_sync.ps1 已丢失，但仍检测到 Aurora 运行库恢复数据。
+echo             echo 为避免丢失恢复备份，Aurora 不会被卸载。请恢复 runtime_sync.ps1 后重试。
+echo             pause
+echo             exit /b 1
+echo         ^)
+echo     ^)
 echo     del OptiScaler.log
 echo     del OptiScaler.ini
 echo     del OptiScaler.asi
@@ -526,10 +551,13 @@ echo     echo Deleting OptiPatcher if present
 echo     del /Q OptiScaler\plugins\*
 echo     rd OptiScaler\plugins
 echo     echo.
+echo     if exist "OptiScaler\RuntimeSync" rd /S /Q "OptiScaler\RuntimeSync"
 echo     del /Q OptiScaler\*
 echo     rd OptiScaler
+echo     del /Q "%%~dp0runtime_sync.ps1"
+echo     del /Q "%%~dp0Check_DLSS_Runtime.bat"
 echo     echo.
-echo     echo OptiScaler removed^^^^! Ignore the warnings about missing files.
+echo     echo OptiScaler Aurora removed^^^^! Ignore the warnings about missing files.
 echo     echo.
 echo ^) else ^(
 echo     echo.
