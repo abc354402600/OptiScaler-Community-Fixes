@@ -44,36 +44,15 @@ jobs:
             exit 1
         }
 
-        function Get-Version-Component {
-            param (
-                [string]$pattern,
-                [string]$replacement
-            )
-
-            $line = Get-Content $resourceFile | Select-String -Pattern $pattern | Select-Object -First 1
-            if ($line) {
-                return ($line.Line -replace $replacement).Trim()
-            }
-
-            Write-Error "Pattern not found: $pattern"
+        $resourceLines = Get-Content $resourceFile
+        $auroraLine = $resourceLines | Select-String -Pattern '^\s*#define\s+VER_AURORA_VERSION\s+"([^"]+)"' | Select-Object -First 1
+        if (-Not $auroraLine) {
+            Write-Error "VER_AURORA_VERSION not found in $resourceFile"
             exit 1
         }
 
-        $majorVersion = Get-Version-Component 'VER_MAJOR_VERSION' '#define VER_MAJOR_VERSION\s+'
-        $minorVersion = Get-Version-Component 'VER_MINOR_VERSION' '#define VER_MINOR_VERSION\s+'
-        $hotfixVersion = Get-Version-Component 'VER_HOTFIX_VERSION' '#define VER_HOTFIX_VERSION\s+'
-        $buildVersion = Get-Version-Component 'VER_BUILD_NUMBER' '#define VER_BUILD_NUMBER\s+'
-
-        $resourceLines = Get-Content $resourceFile
-        $devRelease = $resourceLines | Select-String -Pattern '^\s*#define\s+VER_DEV_RELEASE' -Quiet
-        $forkLine = $resourceLines | Select-String -Pattern '^\s*#define\s+VER_FORK_TAG' | Select-Object -First 1
-
-        $forkTag = ''
-        if ($forkLine) { $forkTag = ($forkLine.Line -replace '.*"(.*)".*', '$1') }
-
-        if ($devRelease) { $suffix = "-dev" } else { $suffix = "-pre$buildVersion" }
-
-        $version = "v$majorVersion.$minorVersion.$hotfixVersion$suffix$forkTag"
+        $auroraVersion = $auroraLine.Matches[0].Groups[1].Value
+        $version = "v$auroraVersion"
         $date = Get-Date -Format "yyyyMMdd"
         $outputFileName = "OptiScaler_Aurora_${version}_${date}"
 
