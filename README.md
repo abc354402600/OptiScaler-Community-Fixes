@@ -258,6 +258,214 @@ Aurora 同时包含针对该游戏的额外兼容性修改。
 
 ---
 
+## 🛠️ Troubleshooting / 常见问题与排错
+
+### 1. The game does not launch after installing Aurora / 安装 Aurora 后游戏进不去
+
+The selected proxy DLL may not be compatible with this game.
+
+For most games, start with:
+
+`dxgi.dll`
+
+If the game crashes, reports an illegal module, or does not start, try another proxy DLL such as:
+
+- `winmm.dll`
+- `version.dll`
+- `dbghelp.dll`
+- `d3d12.dll`
+- `wininet.dll`
+- `winhttp.dll`
+
+Only use one OptiScaler proxy DLL at a time.
+
+**如果安装后游戏无法启动，最常见的原因之一就是当前 Proxy DLL 不兼容。**
+
+大部分游戏优先尝试：
+
+`dxgi.dll`
+
+如果出现闪退、非法模块、启动失败等问题，可以依次尝试：
+
+`winmm.dll` → `version.dll` → 其他 Proxy
+
+例如：
+
+**Neverness to Everness / 异环目前推荐使用 `winmm.dll`。**
+
+---
+
+### 2. The launcher restored old DLSS / Streamline files / 启动器把新版 DLSS / Streamline 又恢复成旧版了
+
+Some game launchers, game updates, or file-verification systems may restore the game's original runtime files.
+
+If this happens, wait for the launcher to finish updating, then run:
+
+`Check_DLSS_Runtime.bat`
+
+Aurora will check the managed DLSS / Streamline runtime files and repair them when necessary.
+
+**部分游戏启动器、游戏更新或文件验证，会把 Aurora 已替换的运行库重新恢复成游戏原版。**
+
+遇到这种情况：
+
+**先等启动器更新完成，再运行：**
+
+`Check_DLSS_Runtime.bat`
+
+Aurora 会自动检查并重新修复受管理的 DLSS / Streamline 文件。
+
+Runtime Sync also keeps restore information and verified backups for managed original game files.
+
+Runtime Sync 同时会保存恢复信息以及经过校验的游戏原文件备份。
+
+---
+
+### 3. `Insert` does not open the OptiScaler overlay / 按 `Insert` 无法打开 OptiScaler 面板
+
+Normally, press:
+
+`Insert`
+
+to open the OptiScaler overlay.
+
+If your keyboard does not have an Insert key, you can open the Windows On-Screen Keyboard:
+
+`Ctrl + Win + O`
+
+and click:
+
+`Insert`
+
+Some keyboard layouts may also work with:
+
+`Alt + Insert`
+
+**正常情况下按 `Insert` 即可打开 OptiScaler 参数面板。**
+
+如果键盘没有 Insert 键，可以按：
+
+`Ctrl + Win + O`
+
+打开 Windows 屏幕键盘，然后点击：
+
+`Insert`
+
+部分键盘布局也可以尝试：
+
+`Alt + Insert`
+
+---
+
+### 4. `Run inside the upscaler` causes visual corruption / 开启后花屏或画面异常
+
+`Run inside the upscaler / DualFeature` is experimental and is not compatible with every game.
+
+If you see:
+
+- severe visual corruption
+- strange colors
+- broken rendering
+- evaluation failures
+- unstable image output
+
+disable:
+
+`Run inside the upscaler`
+
+and restart the game if required.
+
+**`Run inside the upscaler / DualFeature` 属于实验性功能，并不是所有游戏都兼容。**
+
+如果开启后出现：
+
+- 花屏
+- 颜色异常
+- 画面破碎
+- 模型执行失败
+- 图像输出异常
+
+直接关闭：
+
+`Run inside the upscaler`
+
+必要时重新启动游戏。
+
+Aurora can still use DLSS Neural Rendering without this option in compatible titles.
+
+在兼容游戏中，即使关闭该选项，Aurora 仍可以正常使用 DLSS Neural Rendering。
+
+---
+
+### 5. The launcher cannot start the game, but the game executable works / 启动器进不去，但直接运行主程序可以
+
+Some games behave differently depending on whether they are launched from the launcher or directly from the real game executable.
+
+If one method fails, try the other:
+
+- Launcher → Game
+- Game `.exe` directly
+
+**部分游戏通过启动器和直接运行主程序时，加载环境并不完全相同。**
+
+如果其中一种方式无法进入游戏，可以尝试另一种。
+
+不过如果游戏依赖启动器进行登录、验证或更新，请先确保启动器已经完成必要流程。
+
+---
+
+### 6. Capcom games and REFramework / 卡普空游戏与 REFramework
+
+Some Capcom games may require **REFramework** for the intended modding setup or compatibility workflow.
+
+Aurora does not currently bundle REFramework.
+
+If a supported Capcom title requires it, install a compatible REFramework version separately before using Aurora.
+
+**部分卡普空游戏在 Mod / 兼容性环境下可能需要先安装 REFramework。**
+
+Aurora 当前不会集成 REFramework。
+
+如果对应游戏需要，请先单独安装兼容版本的 REFramework，再使用 Aurora。
+
+---
+
+### 7. Aurora stopped working after a game update or Steam verification / 游戏更新或 Steam 验证后 Aurora 失效
+
+Game updates and Steam file verification may restore original game runtime files.
+
+First run:
+
+`Check_DLSS_Runtime.bat`
+
+to repair managed DLSS / Streamline files.
+
+If the game executable or loading behavior has changed after a major update, you may also need to run:
+
+`setup_windows.bat`
+
+again and reselect the appropriate proxy DLL.
+
+**游戏更新或 Steam 验证完整性后，部分 DLL 可能会被恢复成游戏原版。**
+
+优先运行：
+
+`Check_DLSS_Runtime.bat`
+
+重新检查并修复运行库。
+
+如果游戏大版本更新后主程序、加载方式或目录结构发生变化，再重新运行：
+
+`setup_windows.bat`
+
+并重新选择合适的 Proxy DLL。
+
+---
+
+> [!TIP]
+> If Aurora worked before an update but suddenly stopped working afterwards, first suspect restored game runtime files before changing multiple settings at once.  
+> 如果 Aurora 原本可以正常使用，但游戏更新后突然失效，优先检查运行库是否被游戏或启动器恢复，不建议一上来同时修改大量设置。
+
 ## Important Notes / 重要说明
 
 > [!IMPORTANT]
