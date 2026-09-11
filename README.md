@@ -1,12 +1,37 @@
+<div align="center">
+
 # OptiScaler Aurora / OptiScaler 极光版
 
-**A compatibility-enhanced OptiScaler community build for RTX 40 Multi Frame Generation, DLSS Neural Rendering, newer NVIDIA runtimes and easier installation.**  
-**面向 RTX 40 多帧生成、DLSS 神经渲染、新版 NVIDIA 运行库与自动化安装体验的 OptiScaler 社区兼容性增强版本。**
+**RTX 40 Multi Frame Generation · DLSS Neural Rendering · Automatic Runtime Sync**  
+**RTX 40 多帧生成 · DLSS 神经渲染 · 自动运行库同步**
+
+[![Aurora v1.0](https://img.shields.io/badge/Aurora-v1.0-7c3aed?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora/releases/tag/aurora-v1.0)
+[![RTX 40 MFG](https://img.shields.io/badge/RTX%2040%20MFG-Up%20to%206X-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![DLSS](https://img.shields.io/badge/DLSS-310.9-00AEEF?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Streamline](https://img.shields.io/badge/Streamline-2.14-2563eb?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora)
+
+[![DLSS Neural Rendering](https://img.shields.io/badge/DLSS%20Neural%20Rendering-310.8-8b5cf6?style=flat-square)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Runtime Sync](https://img.shields.io/badge/Runtime%20Sync-Auto%20Backup%20%7C%20Repair%20%7C%20Restore-16a34a?style=flat-square)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Downloads](https://img.shields.io/github/downloads/abc354402600/OptiScaler-Aurora/total?style=flat-square&label=Downloads&color=0ea5e9)](https://github.com/abc354402600/OptiScaler-Aurora/releases)
+
+<br>
+
+<a href="https://github.com/abc354402600/OptiScaler-Aurora/releases/download/aurora-v1.0/OptiScaler_Aurora_v1.0_20260910.7z">
+  <img src="https://img.shields.io/badge/⬇%20Download-Aurora%20v1.0-22c55e?style=for-the-badge" alt="Download Aurora v1.0">
+</a>
+<a href="https://github.com/abc354402600/OptiScaler-Aurora/releases/tag/aurora-v1.0">
+  <img src="https://img.shields.io/badge/Release%20Notes-版本说明-334155?style=for-the-badge" alt="Release Notes">
+</a>
+
+</div>
+
+---
+
+**Aurora focuses on three things: better RTX 40 MFG compatibility, lower-cost DLSS Neural Rendering, and a much easier installation workflow.**  
+**Aurora 主要解决三件事：更好的 RTX 40 多帧生成兼容性、更低开销的 DLSS 神经渲染，以及更省事的自动化安装流程。**
 
 > **Aurora v1.0 = RTX 40 MFG + DLSS Neural Rendering + DLSS 310.9 + Streamline 2.14 + Automatic Runtime Sync**  
 > **极光版 v1.0 = RTX 40 多帧生成 + DLSS 神经渲染 + DLSS 310.9 + Streamline 2.14 + 自动运行库同步**
-
-### [⬇️ Download Aurora v1.0 / 下载极光版 v1.0](https://github.com/abc354402600/OptiScaler-Aurora/releases/tag/aurora-v1.0)
 
 ---
 
