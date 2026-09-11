@@ -209,6 +209,17 @@ You can then configure:
 
 ## 🎮 Tested Aurora Compatibility / 已验证的 Aurora 兼容性
 
+### Compatibility Overview / 兼容性总览
+
+| Game / 游戏 | Recommended Proxy / 推荐 Proxy | RTX 40 MFG | DLSS Neural Rendering | Run inside the upscaler | Notes / 备注 |
+|---|---|---|---|---|---|
+| **Neverness to Everness / 异环** | `winmm.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ⚠️ **Not recommended / 不推荐** | `dxgi.dll` may trigger illegal-module detection; Aurora fixes the RTX 40 MFG instant crash. / `dxgi.dll` 可能触发非法模块检测；Aurora 已修复 RTX 40 MFG 瞬间闪退。 |
+| **Onimusha: Way of the Sword / 鬼武者：剑之道** | — | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ❌ **Disable / 建议关闭** | May cause severe visual corruption when enabled; Aurora includes additional compatibility changes. / 开启后可能严重花屏；Aurora 已加入额外兼容性修改。 |
+
+> [!TIP]
+> **This table only lists configurations that have been tested or explicitly documented for Aurora.**  
+> **本表只记录已经实测或在 Aurora 中明确确认的配置，不代表其他游戏一定无法使用。**
+
 ### Neverness to Everness / 异环
 
 - Fixed the instant crash when enabling `Unlock MFG on RTX 40`
