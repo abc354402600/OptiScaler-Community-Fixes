@@ -207,6 +207,21 @@ You can then configure:
 
 ---
 
+## Recommended Settings / 推荐设置
+
+| Option / 选项 | Recommended / 建议 |
+|---|---|
+| RTX 40 MFG | Start with **6X** where supported / 支持时可优先尝试 **6X** |
+| DLSS Neural Rendering | ✅ Enable / 开启 |
+| Model Resolution | 40% recommended starting point / 推荐从 40% 开始尝试 |
+| `Run inside the upscaler` | ⚠️ Keep disabled unless the game is known to work with it / 未确认兼容前建议关闭 |
+| Proxy DLL | `dxgi.dll` for most games / 大多数游戏优先 `dxgi.dll` |
+| Neverness to Everness / 异环 | Use `winmm.dll` / 推荐 `winmm.dll` |
+| Save Configuration | Save settings at the bottom of the overlay / 调完后记得保存配置 |
+> [!TIP]
+> These are starting-point recommendations, not universal requirements.  
+> 这些是建议起始设置，不代表所有游戏都必须这样配置。
+
 ## 🎮 Tested Aurora Compatibility / 已验证的 Aurora 兼容性
 
 ### Compatibility Overview / 兼容性总览
