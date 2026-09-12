@@ -11,7 +11,7 @@ set "EXTRACTDIR=%WORKDIR%\extracted"
 echo ==========================
 echo  Streamline files fetcher
 echo ==========================
-echo v1.0
+echo v1.1
 echo.
 echo.
 echo [1] Download latest Streamline DLLs
@@ -49,7 +49,7 @@ echo.
 powershell -NoProfile -Command ^
     "$ErrorActionPreference='Stop';" ^
     "$r = Invoke-RestMethod -Uri 'https://api.github.com/repos/%REPO%/releases/latest' -Headers @{ 'User-Agent' = 'batch-script' };" ^
-    "$asset = $r.assets | Where-Object { $_.name -like '*.zip' } | Select-Object -First 1;" ^
+    "$asset = $r.assets | Where-Object { $_.name -match '^streamline-sdk-v[0-9.]+\.zip$' } | Select-Object -First 1;" ^
     "if (-not $asset) { Write-Error 'No .zip asset found in latest release.'; exit 1 }" ^
     "$asset.browser_download_url | Out-File -Encoding ascii '%WORKDIR%\asset_url.txt';" ^
     "$asset.name | Out-File -Encoding ascii '%WORKDIR%\asset_name.txt';" ^
