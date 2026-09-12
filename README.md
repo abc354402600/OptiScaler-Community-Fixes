@@ -41,7 +41,7 @@
 |---|---|
 | RTX 40 Multi Frame Generation | ✅ Up to **6X** tested / 已验证最高 **6X** |
 | DLSS Runtime | ✅ **310.9** |
-| Streamline | ✅ **2.14** |
+| Bundled Streamline Runtime / 集成 Streamline 运行库 | ✅ **2.14** |
 | DLSS Neural Rendering | ✅ **310.8** |
 | Adjustable NR model resolution | ✅ 可调神经渲染模型分辨率 |
 | Automatic DLSS / Streamline sync | ✅ 自动同步 |
@@ -51,6 +51,8 @@
 | Uninstall restore | ✅ 卸载自动恢复 |
 | Neverness to Everness MFG crash fix | ✅ 异环 MFG 闪退修复 |
 | Onimusha compatibility changes | ✅ 鬼武者兼容性增强 |
+| Legacy Streamline 1.x protection | ✅ 自动识别 / 保护 / 自愈 |
+| The Witcher 3 compatibility | ✅ SL1 protection + RTX 40 6X MFG |
 
 ---
 
@@ -104,7 +106,7 @@ After `setup_windows.bat` completes installation, Aurora automatically:
 1. Scans the game directory and common engine runtime locations
 2. Finds matching game-owned DLSS / Streamline runtime files
 3. Creates verified backups of the original game files
-4. Replaces them with Aurora's bundled runtime versions
+4. Updates compatible runtimes to Aurora's bundled versions while preserving incompatible legacy Streamline 1.x files
 5. Verifies the deployed files with SHA256
 6. Saves restore information for later checking and uninstall recovery
 
@@ -115,7 +117,7 @@ After `setup_windows.bat` completes installation, Aurora automatically:
 1. 扫描游戏目录与常见引擎运行库目录
 2. 找到游戏自带的 DLSS / Streamline 文件
 3. 校验并备份游戏原文件
-4. 自动替换为 Aurora 集成版本
+4. 对兼容的运行库自动更新为 Aurora 集成版本，同时识别并保护不兼容的旧版 Streamline 1.x 文件
 5. 使用 SHA256 校验替换结果
 6. 保存恢复信息，供后续检查与卸载恢复使用
 
@@ -229,7 +231,8 @@ You can then configure:
 | Game / 游戏 | Recommended Proxy / 推荐 Proxy | RTX 40 MFG | DLSS Neural Rendering | Run inside the upscaler | Notes / 备注 |
 |---|---|---|---|---|---|
 | **Neverness to Everness / 异环** | `winmm.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ⚠️ **Not recommended / 不推荐** | `dxgi.dll` may trigger illegal-module detection; Aurora fixes the RTX 40 MFG instant crash. / `dxgi.dll` 可能触发非法模块检测；Aurora 已修复 RTX 40 MFG 瞬间闪退。 |
-| **Onimusha: Way of the Sword / 鬼武者：剑之道** | — | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ❌ **Disable / 建议关闭** | May cause severe visual corruption when enabled; Aurora includes additional compatibility changes. / 开启后可能严重花屏；Aurora 已加入额外兼容性修改。 |
+| **Onimusha: Way of the Sword / 鬼武者：剑之道** | `dxgi.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ❌ **Disable / 建议关闭** | May cause severe visual corruption when enabled; Aurora includes additional compatibility changes. / 开启后可能严重花屏；Aurora 已加入额外兼容性修改。 |
+| **The Witcher 3: Wild Hunt / 巫师3：狂猎** | `dxgi.dll` | ✅ **6X Verified via OptiFG / 已验证 6X** | ✅ Works / 可用 | — Not used / 未使用 | Keep the game's native Streamline 1.5.6. For 3X–6X MFG, use `OptiFG (Upscaler) → DLSSG → None (Real DLSSG)`. / 保留游戏原生 Streamline 1.5.6；多帧生成使用 OptiFG → DLSSG。 |
 
 > [!TIP]
 > **This table only lists configurations that have been tested or explicitly documented for Aurora.**  
@@ -272,6 +275,65 @@ DLSS Neural Rendering 可正常运行。
 Aurora 同时包含针对该游戏的额外兼容性修改。
 
 ---
+
+### The Witcher 3: Wild Hunt / 巫师3：狂猎
+
+Aurora has been verified with the DX12 version of The Witcher 3.
+
+**Important:** The Witcher 3 uses the older native **Streamline 1.5.6** runtime.  
+Aurora Runtime Sync v1.3 automatically detects and preserves these SL1 files instead of replacing them with Streamline 2.x.
+
+**重要：**《巫师3》使用游戏原生 **Streamline 1.5.6**。  
+Aurora Runtime Sync v1.3 会自动识别并保护这些 SL1 文件，不再使用 Streamline 2.x 强制覆盖。
+
+Verified configuration / 已验证配置：
+
+- Proxy: `dxgi.dll`
+- DLSS 310.9: ✅
+- DLSS Neural Rendering: ✅
+- RTX 40 Multi Frame Generation: ✅ **2X–6X**
+- Game-native Streamline 1.5.6 protection: ✅
+- Recommended MFG path: `OptiFG (Upscaler) → DLSSG`
+- FG Nvngx Replacement: `None (Real DLSSG)`
+
+#### RTX 40 3X–6X MFG setup / RTX 40 多帧生成设置
+
+1. In the game settings, select **DLSS** as the upscaler.
+2. Disable the game's native DLSS Frame Generation.
+3. Open the Aurora overlay with `Insert`.
+4. Set:
+   - **FG Input** → `OptiFG (Upscaler)`
+   - **FG Output** → `DLSSG`
+   - **FG Nvngx Replacement** → `None (Real DLSSG)`
+5. Click **Save Settings**.
+6. Completely exit and restart the game.
+7. Load into an actual game scene.
+8. Open the Aurora overlay again.
+9. Enable **Active** under `Frame Generation (DLSSG)`.
+10. Select the desired MFG ratio: **2X / 3X / 4X / 5X / 6X**.
+
+游戏内操作：
+
+1. 游戏超分辨率选择 **DLSS**。
+2. 关闭游戏原生 DLSS 帧生成。
+3. 按 `Insert` 打开 Aurora。
+4. 设置：
+   - **FG Input** → `OptiFG (Upscaler)`
+   - **FG Output** → `DLSSG`
+   - **FG Nvngx Replacement** → `None (Real DLSSG)`
+5. 点击底部 **Save Settings**。
+6. **完全退出并重新启动游戏。**
+7. 读取存档进入实际游戏场景。
+8. 再次打开 Aurora。
+9. 在 `Frame Generation (DLSSG)` 中勾选 **Active**。
+10. 选择需要的倍率：**2X / 3X / 4X / 5X / 6X**。
+
+> [!IMPORTANT]
+> After changing `FG Input` or `FG Output`, you must **Save Settings and restart the game** before the DLSSG controls become available.
+>
+> 修改 `FG Input / FG Output` 后，必须先 **Save Settings 并重启游戏**，之后才会出现完整的 DLSSG 帧生成控制项。
+
+![The Witcher 3 Aurora 6X MFG setup](images/witcher3_mfg_6x_setup.png)
 
 ## 🛠️ Troubleshooting / 常见问题与排错
 
