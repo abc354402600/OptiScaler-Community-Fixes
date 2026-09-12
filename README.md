@@ -1,62 +1,577 @@
+<div align="center">
+
 # OptiScaler Aurora / OptiScaler 极光版
 
-**Community compatibility-enhanced build based on OptiScaler forks.**  
-**基于 OptiScaler 分支的社区兼容性增强构建。**
+**RTX 40 Multi Frame Generation · DLSS Neural Rendering · Automatic Runtime Sync**  
+**RTX 40 多帧生成 · DLSS 神经渲染 · 自动运行库同步**
 
-Aurora focuses on practical game compatibility, newer NVIDIA runtime integration, and tested RTX 40-series Multi Frame Generation workflows while keeping the upstream OptiScaler foundation intact.  
-Aurora 重点关注实际游戏兼容性、较新的 NVIDIA 运行库集成，以及经过测试的 RTX 40 系多帧生成方案，同时保留上游 OptiScaler 的核心基础。
+[![Aurora v1.0](https://img.shields.io/badge/Aurora-v1.0-7c3aed?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora/releases/tag/aurora-v1.0)
+[![RTX 40 MFG](https://img.shields.io/badge/RTX%2040%20MFG-Up%20to%206X-76B900?style=for-the-badge&logo=nvidia&logoColor=white)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![DLSS](https://img.shields.io/badge/DLSS-310.9-00AEEF?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Streamline](https://img.shields.io/badge/Streamline-2.14-2563eb?style=for-the-badge)](https://github.com/abc354402600/OptiScaler-Aurora)
+
+[![DLSS Neural Rendering](https://img.shields.io/badge/DLSS%20Neural%20Rendering-310.8-8b5cf6?style=flat-square)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Runtime Sync](https://img.shields.io/badge/Runtime%20Sync-Auto%20Backup%20%7C%20Repair%20%7C%20Restore-16a34a?style=flat-square)](https://github.com/abc354402600/OptiScaler-Aurora)
+[![Downloads](https://img.shields.io/github/downloads/abc354402600/OptiScaler-Aurora/total?style=flat-square&label=Downloads&color=0ea5e9)](https://github.com/abc354402600/OptiScaler-Aurora/releases)
+
+<br>
+
+<a href="https://github.com/abc354402600/OptiScaler-Aurora/releases/download/aurora-v1.0/OptiScaler_Aurora_v1.0_20260910.7z">
+  <img src="https://img.shields.io/badge/⬇%20Download-Aurora%20v1.0-22c55e?style=for-the-badge" alt="Download Aurora v1.0">
+</a>
+<a href="https://github.com/abc354402600/OptiScaler-Aurora/releases/tag/aurora-v1.0">
+  <img src="https://img.shields.io/badge/Release%20Notes-版本说明-334155?style=for-the-badge" alt="Release Notes">
+</a>
+
+</div>
+
+---
+
+**Aurora focuses on three things: better RTX 40 MFG compatibility, lower-cost DLSS Neural Rendering, and a much easier installation workflow.**  
+**Aurora 主要解决三件事：更好的 RTX 40 多帧生成兼容性、更低开销的 DLSS 神经渲染，以及更省事的自动化安装流程。**
+
+> **Aurora v1.0 = RTX 40 MFG + DLSS Neural Rendering + DLSS 310.9 + Streamline 2.14 + Automatic Runtime Sync**  
+> **极光版 v1.0 = RTX 40 多帧生成 + DLSS 神经渲染 + DLSS 310.9 + Streamline 2.14 + 自动运行库同步**
+
+---
+
+## Why Aurora? / 极光版有什么不同？
+
+| Feature / 功能 | Aurora v1.0 |
+|---|---|
+| RTX 40 Multi Frame Generation | ✅ Up to **6X** tested / 已验证最高 **6X** |
+| DLSS Runtime | ✅ **310.9** |
+| Bundled Streamline Runtime / 集成 Streamline 运行库 | ✅ **2.14** |
+| DLSS Neural Rendering | ✅ **310.8** |
+| Adjustable NR model resolution | ✅ 可调神经渲染模型分辨率 |
+| Automatic DLSS / Streamline sync | ✅ 自动同步 |
+| Original game runtime backup | ✅ 自动备份游戏原文件 |
+| SHA256 deployment verification | ✅ 自动校验 |
+| Runtime self-check / repair | ✅ 一键自检 / 修复 |
+| Uninstall restore | ✅ 卸载自动恢复 |
+| Neverness to Everness MFG crash fix | ✅ 异环 MFG 闪退修复 |
+| Onimusha compatibility changes | ✅ 鬼武者兼容性增强 |
+| Legacy Streamline 1.x protection | ✅ 自动识别 / 保护 / 自愈 |
+| The Witcher 3 compatibility | ✅ SL1 protection + RTX 40 6X MFG |
+
+---
+
+## 🚀 RTX 40 Multi Frame Generation / RTX 40 多帧生成
+
+Aurora adds compatibility changes for NVIDIA Multi Frame Generation on RTX 40-series GPUs in supported games.
+
+**Up to 6X Multi Frame Generation has been verified on tested titles.**
+
+The RTX 40 MFG workflow uses the NVIDIA **DLSS-G / MFG runtime path**, rather than converting the feature to FSR frame generation.
+
+Aurora 针对 RTX 40 系 NVIDIA Multi Frame Generation 增加了兼容性增强。
+
+**目前已在实测游戏中验证最高 6X 多帧生成。**
+
+RTX 40 MFG 使用 NVIDIA **DLSS-G / MFG 运行路径**，并非将该功能转换为 FSR 帧生成。
+
+---
+
+## ✨ DLSS Neural Rendering / DLSS 神经渲染
+
+Aurora bundles the **DLSS Neural Rendering 310.8** runtime and supports adjustable model-resolution settings.
+
+Reducing the model resolution can significantly lower Neural Rendering processing cost in compatible games, allowing users to find a better balance between image quality and performance.
+
+Aurora 已集成 **DLSS Neural Rendering 310.8** 运行库，并支持调节神经渲染模型分辨率。
+
+在兼容游戏中，降低模型分辨率可以明显减少 Neural Rendering 的性能开销，让用户根据自己的显卡与游戏自由平衡：
+
+**Image Quality ↔ Performance**  
+**画质 ↔ 性能**
+
+Current bundled NVIDIA runtimes / 当前集成 NVIDIA 运行库：
+
+- **DLSS 310.9**
+- **DLSS Neural Rendering 310.8**
+- **Streamline 2.14**
+
+> [!NOTE]
+> **DLSS Neural Rendering is experimental and game-dependent.**  
+> **DLSS 神经渲染仍属于实验性功能，实际兼容性与效果取决于具体游戏。**
+
+---
+
+## ⚡ Automatic Runtime Sync / 自动运行库同步
+
+One of Aurora's biggest differences is that users no longer need to manually search through the game folders and replace every DLSS / Streamline DLL themselves.
+
+After `setup_windows.bat` completes installation, Aurora automatically:
+
+1. Scans the game directory and common engine runtime locations
+2. Finds matching game-owned DLSS / Streamline runtime files
+3. Creates verified backups of the original game files
+4. Updates compatible runtimes to Aurora's bundled versions while preserving incompatible legacy Streamline 1.x files
+5. Verifies the deployed files with SHA256
+6. Saves restore information for later checking and uninstall recovery
+
+**这是 Aurora 与很多手动整合方案最大的区别之一：不再需要自己到处寻找和替换 DLSS / Streamline 文件。**
+
+运行 `setup_windows.bat` 后，Aurora 会自动：
+
+1. 扫描游戏目录与常见引擎运行库目录
+2. 找到游戏自带的 DLSS / Streamline 文件
+3. 校验并备份游戏原文件
+4. 对兼容的运行库自动更新为 Aurora 集成版本，同时识别并保护不兼容的旧版 Streamline 1.x 文件
+5. 使用 SHA256 校验替换结果
+6. 保存恢复信息，供后续检查与卸载恢复使用
+
+如果 Steam 验证、游戏更新或启动器重新下载了旧版运行库，只需再次运行：
+
+`Check_DLSS_Runtime.bat`
+
+Aurora 会自动重新检查并修复。
+
+---
+
+## 3-Step Installation / 三步安装
+
+### 1. Extract Aurora beside the real game executable / 把 Aurora 放到游戏真正的主程序目录
+
+Extract **all files** from the Aurora package into the folder containing the game's real `.exe`.
+
+For many Unreal Engine games, the path is usually similar to:
+
+`GameName\Binaries\Win64`
+
+最简单的查找方法：
+
+**启动游戏 → 打开任务管理器 → 右键游戏进程 → 打开文件所在的位置**
+
+然后退出游戏，把 Aurora 压缩包内的全部文件解压到这里。
+
+---
+
+### 2. Run `setup_windows.bat` / 运行 `setup_windows.bat`
+
+Run:
+
+`setup_windows.bat`
+
+Then choose the proxy DLL name.
+
+Recommended starting point:
+
+- `dxgi.dll` — default choice for most games
+- `winmm.dll` — useful for Vulkan and some special cases
+- Other available choices include `version.dll`, `dbghelp.dll`, `d3d12.dll`, `wininet.dll` and `winhttp.dll`
+
+一般游戏优先尝试：
+
+`dxgi.dll`
+
+部分特殊游戏需要其他 Proxy。
+
+例如：
+
+**Neverness to Everness / 异环：推荐 `winmm.dll`**
+
+After that, Aurora completes the OptiScaler setup and automatically runs Runtime Sync.
+
+之后 Aurora 会自动完成 OptiScaler 安装，并自动同步游戏中的 DLSS / Streamline 运行库。
+
+**无需再手动寻找和替换 DLL。**
+
+---
+
+### 3. Launch the game / 直接进入游戏
+
+After setup completes, launch the game normally.
+
+Press:
+
+`Insert`
+
+to open the OptiScaler overlay.
+
+You can then configure:
+
+- RTX 40 Multi Frame Generation
+- MFG ratio
+- DLSS Neural Rendering
+- Neural Rendering model resolution
+- DLSS presets
+- Sharpness
+- Other OptiScaler options
+
+安装完成后正常启动游戏即可。
+
+进入游戏按：
+
+`Insert`
+
+打开 OptiScaler 参数面板，然后根据需要配置多帧生成、DLSS Neural Rendering、模型分辨率与其他参数。
+
+---
+
+## Recommended Settings / 推荐设置
+
+| Option / 选项 | Recommended / 建议 |
+|---|---|
+| RTX 40 MFG | Start with **6X** where supported / 支持时可优先尝试 **6X** |
+| DLSS Neural Rendering | ✅ Enable / 开启 |
+| Model Resolution | 40% recommended starting point / 推荐从 40% 开始尝试 |
+| `Run inside the upscaler` | ⚠️ Keep disabled unless the game is known to work with it / 未确认兼容前建议关闭 |
+| Proxy DLL | `dxgi.dll` for most games / 大多数游戏优先 `dxgi.dll` |
+| Neverness to Everness / 异环 | Use `winmm.dll` / 推荐 `winmm.dll` |
+| Save Configuration | Save settings at the bottom of the overlay / 调完后记得保存配置 |
+> [!TIP]
+> These are starting-point recommendations, not universal requirements.  
+> 这些是建议起始设置，不代表所有游戏都必须这样配置。
+
+## 🎮 Tested Aurora Compatibility / 已验证的 Aurora 兼容性
+
+### Compatibility Overview / 兼容性总览
+
+| Game / 游戏 | Recommended Proxy / 推荐 Proxy | RTX 40 MFG | DLSS Neural Rendering | Run inside the upscaler | Notes / 备注 |
+|---|---|---|---|---|---|
+| **Neverness to Everness / 异环** | `winmm.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ⚠️ **Not recommended / 不推荐** | `dxgi.dll` may trigger illegal-module detection; Aurora fixes the RTX 40 MFG instant crash. / `dxgi.dll` 可能触发非法模块检测；Aurora 已修复 RTX 40 MFG 瞬间闪退。 |
+| **Onimusha: Way of the Sword / 鬼武者：剑之道** | `dxgi.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ❌ **Disable / 建议关闭** | May cause severe visual corruption when enabled; Aurora includes additional compatibility changes. / 开启后可能严重花屏；Aurora 已加入额外兼容性修改。 |
+| **The Witcher 3: Wild Hunt / 巫师3：狂猎** | `dxgi.dll` | ✅ **6X Verified via OptiFG / 已验证 6X** | ✅ Works / 可用 | — Not used / 未使用 | Keep the game's native Streamline 1.5.6. For 3X–6X MFG, use `OptiFG (Upscaler) → DLSSG → None (Real DLSSG)`. / 保留游戏原生 Streamline 1.5.6；多帧生成使用 OptiFG → DLSSG。 |
+
+> [!TIP]
+> **This table only lists configurations that have been tested or explicitly documented for Aurora.**  
+> **本表只记录已经实测或在 Aurora 中明确确认的配置，不代表其他游戏一定无法使用。**
+
+### Neverness to Everness / 异环
+
+- Fixed the instant crash when enabling `Unlock MFG on RTX 40`
+- RTX 4080 Laptop verified with **6X MFG**
+- Recommended proxy: `winmm.dll`
+- `dxgi.dll` may trigger illegal-module detection
+- DLSS Neural Rendering works
+- `Run inside the upscaler` is currently not recommended for this title
+
+**已修复游戏内启用 `Unlock MFG on RTX 40` 时的瞬间闪退。**
+
+RTX 4080 Laptop 已验证：
+
+**6X Multi Frame Generation / 6X 多帧生成**
+
+推荐 Proxy：
+
+`winmm.dll`
+
+---
+
+### Onimusha: Way of the Sword / 鬼武者：剑之道
+
+- RTX 40-series **6X MFG verified**
+- DLSS Neural Rendering works
+- Aurora includes additional compatibility changes for this title
+- `Run inside the upscaler / DualFeature` may cause severe visual corruption and should remain disabled
+
+RTX 40 系已验证：
+
+**6X Multi Frame Generation / 6X 多帧生成**
+
+DLSS Neural Rendering 可正常运行。
+
+Aurora 同时包含针对该游戏的额外兼容性修改。
+
+---
+
+### The Witcher 3: Wild Hunt / 巫师3：狂猎
+
+Aurora has been verified with the DX12 version of The Witcher 3.
+
+**Important:** The Witcher 3 uses the older native **Streamline 1.5.6** runtime.  
+Aurora Runtime Sync v1.3 automatically detects and preserves these SL1 files instead of replacing them with Streamline 2.x.
+
+**重要：**《巫师3》使用游戏原生 **Streamline 1.5.6**。  
+Aurora Runtime Sync v1.3 会自动识别并保护这些 SL1 文件，不再使用 Streamline 2.x 强制覆盖。
+
+Verified configuration / 已验证配置：
+
+- Proxy: `dxgi.dll`
+- DLSS 310.9: ✅
+- DLSS Neural Rendering: ✅
+- RTX 40 Multi Frame Generation: ✅ **2X–6X**
+- Game-native Streamline 1.5.6 protection: ✅
+- Recommended MFG path: `OptiFG (Upscaler) → DLSSG`
+- FG Nvngx Replacement: `None (Real DLSSG)`
+
+#### RTX 40 3X–6X MFG setup / RTX 40 多帧生成设置
+
+1. In the game settings, select **DLSS** as the upscaler.
+2. Disable the game's native DLSS Frame Generation.
+3. Open the Aurora overlay with `Insert`.
+4. Set:
+   - **FG Input** → `OptiFG (Upscaler)`
+   - **FG Output** → `DLSSG`
+   - **FG Nvngx Replacement** → `None (Real DLSSG)`
+5. Click **Save Settings**.
+6. Completely exit and restart the game.
+7. Load into an actual game scene.
+8. Open the Aurora overlay again.
+9. Enable **Active** under `Frame Generation (DLSSG)`.
+10. Select the desired MFG ratio: **2X / 3X / 4X / 5X / 6X**.
+
+游戏内操作：
+
+1. 游戏超分辨率选择 **DLSS**。
+2. 关闭游戏原生 DLSS 帧生成。
+3. 按 `Insert` 打开 Aurora。
+4. 设置：
+   - **FG Input** → `OptiFG (Upscaler)`
+   - **FG Output** → `DLSSG`
+   - **FG Nvngx Replacement** → `None (Real DLSSG)`
+5. 点击底部 **Save Settings**。
+6. **完全退出并重新启动游戏。**
+7. 读取存档进入实际游戏场景。
+8. 再次打开 Aurora。
+9. 在 `Frame Generation (DLSSG)` 中勾选 **Active**。
+10. 选择需要的倍率：**2X / 3X / 4X / 5X / 6X**。
 
 > [!IMPORTANT]
-> **Aurora is a community fork and is not an official OptiScaler, NVIDIA, Capcom, or Hotta Studio release.**  
-> **Aurora 是社区分支，并非 OptiScaler、NVIDIA、Capcom 或 Hotta Studio 的官方版本。**
+> After changing `FG Input` or `FG Output`, you must **Save Settings and restart the game** before the DLSSG controls become available.
+>
+> 修改 `FG Input / FG Output` 后，必须先 **Save Settings 并重启游戏**，之后才会出现完整的 DLSSG 帧生成控制项。
 
-## Aurora v1.0 Highlights / Aurora v1.0 主要特性
+![The Witcher 3 Aurora 6X MFG setup](images/witcher3_mfg_6x_setup.png)
 
-- **RTX 40-series MFG unlock, up to 6X where supported and tested.**  
-  **RTX 40 系多帧生成解锁，在支持并通过测试的环境中最高可达 6X。**
+## 🛠️ Troubleshooting / 常见问题与排错
 
-- **Bundled NVIDIA DLSS 310.9 runtime.**  
-  **集成 NVIDIA DLSS 310.9 运行库。**
+### 1. The game does not launch after installing Aurora / 安装 Aurora 后游戏进不去
 
-- **Bundled NVIDIA Streamline 2.14 runtime.**  
-  **集成 NVIDIA Streamline 2.14 运行库。**
+The selected proxy DLL may not be compatible with this game.
 
-- **Automatic game-local DLSS / Streamline Runtime Sync with backup, self-check and uninstall restore.**<br>
-  **自动同步游戏自带的 DLSS / Streamline 运行库，并提供备份、自检与卸载恢复。**
+For most games, start with:
 
-- **Bundled DLSS Neural Rendering 310.8 runtime.**  
-  **集成 DLSS Neural Rendering 310.8 / DLSS 神经渲染 310.8 运行库。**
+`dxgi.dll`
 
-- **Onimusha: Way of the Sword / 鬼武者：剑之道**  
-  Verified RTX 40-series 6X MFG support with the Aurora compatibility changes.  
-  已验证 Aurora 兼容性修改可在 RTX 40 系显卡上启用 6X 多帧生成。
+If the game crashes, reports an illegal module, or does not start, try another proxy DLL such as:
 
-- **Neverness to Everness / 异环**  
-  Fixed the instant crash that occurred when enabling **Unlock MFG on RTX 40** in-game; 6X MFG has been verified on an RTX 4080 Laptop GPU.  
-  修复游戏内启用 **Unlock MFG on RTX 40 / 解锁 RTX 40 多帧生成** 时的瞬间闪退；已在 RTX 4080 Laptop GPU 上验证 6X 多帧生成。
+- `winmm.dll`
+- `version.dll`
+- `dbghelp.dll`
+- `d3d12.dll`
+- `wininet.dll`
+- `winhttp.dll`
 
-## Known Limitations / 已知限制
+Only use one OptiScaler proxy DLL at a time.
 
-- **DLSS Neural Rendering is experimental and remains game-dependent.**  
-  **DLSS 神经渲染仍属于实验性功能，兼容性取决于具体游戏。**
+**如果安装后游戏无法启动，最常见的原因之一就是当前 Proxy DLL 不兼容。**
 
-- **Run inside the upscaler / DualFeature is not universally compatible and may cause visual corruption or evaluation failures in some games.**  
-  **Run inside the upscaler / DualFeature 并非所有游戏都兼容，在部分游戏中可能出现画面异常或功能执行失败。**
+大部分游戏优先尝试：
 
-- **Multi Frame Generation support depends on the game, NVIDIA runtime, GPU, and game-specific implementation.**  
-  **多帧生成是否可用取决于游戏、NVIDIA 运行库、显卡以及具体游戏实现。**
+`dxgi.dll`
+
+如果出现闪退、非法模块、启动失败等问题，可以依次尝试：
+
+`winmm.dll` → `version.dll` → 其他 Proxy
+
+例如：
+
+**Neverness to Everness / 异环目前推荐使用 `winmm.dll`。**
+
+---
+
+### 2. The launcher restored old DLSS / Streamline files / 启动器把新版 DLSS / Streamline 又恢复成旧版了
+
+Some game launchers, game updates, or file-verification systems may restore the game's original runtime files.
+
+If this happens, wait for the launcher to finish updating, then run:
+
+`Check_DLSS_Runtime.bat`
+
+Aurora will check the managed DLSS / Streamline runtime files and repair them when necessary.
+
+**部分游戏启动器、游戏更新或文件验证，会把 Aurora 已替换的运行库重新恢复成游戏原版。**
+
+遇到这种情况：
+
+**先等启动器更新完成，再运行：**
+
+`Check_DLSS_Runtime.bat`
+
+Aurora 会自动检查并重新修复受管理的 DLSS / Streamline 文件。
+
+Runtime Sync also keeps restore information and verified backups for managed original game files.
+
+Runtime Sync 同时会保存恢复信息以及经过校验的游戏原文件备份。
+
+---
+
+### 3. `Insert` does not open the OptiScaler overlay / 按 `Insert` 无法打开 OptiScaler 面板
+
+Normally, press:
+
+`Insert`
+
+to open the OptiScaler overlay.
+
+If your keyboard does not have an Insert key, you can open the Windows On-Screen Keyboard:
+
+`Ctrl + Win + O`
+
+and click:
+
+`Insert`
+
+Some keyboard layouts may also work with:
+
+`Alt + Insert`
+
+**正常情况下按 `Insert` 即可打开 OptiScaler 参数面板。**
+
+如果键盘没有 Insert 键，可以按：
+
+`Ctrl + Win + O`
+
+打开 Windows 屏幕键盘，然后点击：
+
+`Insert`
+
+部分键盘布局也可以尝试：
+
+`Alt + Insert`
+
+---
+
+### 4. `Run inside the upscaler` causes visual corruption / 开启后花屏或画面异常
+
+`Run inside the upscaler / DualFeature` is experimental and is not compatible with every game.
+
+If you see:
+
+- severe visual corruption
+- strange colors
+- broken rendering
+- evaluation failures
+- unstable image output
+
+disable:
+
+`Run inside the upscaler`
+
+and restart the game if required.
+
+**`Run inside the upscaler / DualFeature` 属于实验性功能，并不是所有游戏都兼容。**
+
+如果开启后出现：
+
+- 花屏
+- 颜色异常
+- 画面破碎
+- 模型执行失败
+- 图像输出异常
+
+直接关闭：
+
+`Run inside the upscaler`
+
+必要时重新启动游戏。
+
+Aurora can still use DLSS Neural Rendering without this option in compatible titles.
+
+在兼容游戏中，即使关闭该选项，Aurora 仍可以正常使用 DLSS Neural Rendering。
+
+---
+
+### 5. The launcher cannot start the game, but the game executable works / 启动器进不去，但直接运行主程序可以
+
+Some games behave differently depending on whether they are launched from the launcher or directly from the real game executable.
+
+If one method fails, try the other:
+
+- Launcher → Game
+- Game `.exe` directly
+
+**部分游戏通过启动器和直接运行主程序时，加载环境并不完全相同。**
+
+如果其中一种方式无法进入游戏，可以尝试另一种。
+
+不过如果游戏依赖启动器进行登录、验证或更新，请先确保启动器已经完成必要流程。
+
+---
+
+### 6. Capcom games and REFramework / 卡普空游戏与 REFramework
+
+Some Capcom games may require **REFramework** for the intended modding setup or compatibility workflow.
+
+Aurora does not currently bundle REFramework.
+
+If a supported Capcom title requires it, install a compatible REFramework version separately before using Aurora.
+
+**部分卡普空游戏在 Mod / 兼容性环境下可能需要先安装 REFramework。**
+
+Aurora 当前不会集成 REFramework。
+
+如果对应游戏需要，请先单独安装兼容版本的 REFramework，再使用 Aurora。
+
+---
+
+### 7. Aurora stopped working after a game update or Steam verification / 游戏更新或 Steam 验证后 Aurora 失效
+
+Game updates and Steam file verification may restore original game runtime files.
+
+First run:
+
+`Check_DLSS_Runtime.bat`
+
+to repair managed DLSS / Streamline files.
+
+If the game executable or loading behavior has changed after a major update, you may also need to run:
+
+`setup_windows.bat`
+
+again and reselect the appropriate proxy DLL.
+
+**游戏更新或 Steam 验证完整性后，部分 DLL 可能会被恢复成游戏原版。**
+
+优先运行：
+
+`Check_DLSS_Runtime.bat`
+
+重新检查并修复运行库。
+
+如果游戏大版本更新后主程序、加载方式或目录结构发生变化，再重新运行：
+
+`setup_windows.bat`
+
+并重新选择合适的 Proxy DLL。
+
+---
+
+> [!TIP]
+> If Aurora worked before an update but suddenly stopped working afterwards, first suspect restored game runtime files before changing multiple settings at once.  
+> 如果 Aurora 原本可以正常使用，但游戏更新后突然失效，优先检查运行库是否被游戏或启动器恢复，不建议一上来同时修改大量设置。
+
+## Important Notes / 重要说明
+
+> [!IMPORTANT]
+> **Aurora is a community fork and is not an official OptiScaler, NVIDIA, Capcom or Hotta Studio release.**  
+> **Aurora 是社区分支，并非 OptiScaler、NVIDIA、Capcom 或 Hotta Studio 官方版本。**
 
 > [!CAUTION]
-> **Do not use this mod with online games or anti-cheat protected environments unless you fully understand the risk.**  
-> **不要在联网游戏或受反作弊保护的环境中使用本 Mod，除非你完全了解潜在风险。**
+> **Do not use Aurora in online or anti-cheat protected environments unless you fully understand the risk.**  
+> **除非你完全了解潜在风险，否则不建议在联网或受反作弊保护的环境中使用 Aurora。**
+
+Multi Frame Generation and DLSS Neural Rendering compatibility still depend on the game, GPU, NVIDIA runtime and game-specific implementation.
+
+多帧生成与 DLSS 神经渲染的实际兼容性仍取决于游戏、显卡、NVIDIA 运行库以及具体游戏实现。
+
+---
 
 ## Upstream & Credits / 上游项目与致谢
 
-Aurora is built on the work of the OptiScaler community and related forks. The original project, authors, contributors, licences, documentation, and credits remain fully respected.  
-Aurora 基于 OptiScaler 社区及相关分支的工作成果。原项目、作者、贡献者、许可证、文档与致谢信息均予以完整保留和尊重。
+Aurora is built on the work of the OptiScaler community and related forks.
 
-The original upstream README is preserved below for reference and compatibility documentation.  
-下方保留原上游 README，作为功能、兼容性与文档参考。
+Aurora 基于 OptiScaler 社区以及相关分支的工作成果。
+
+The original projects, authors, contributors, licenses, documentation and credits remain fully respected.
+
+原项目、作者、贡献者、许可证、文档与致谢信息均予以完整保留和尊重。
+
+The original upstream README is preserved below for reference and compatibility documentation.
+
+下方继续保留原上游 README，作为功能、兼容性与文档参考。
 
 ---
 
