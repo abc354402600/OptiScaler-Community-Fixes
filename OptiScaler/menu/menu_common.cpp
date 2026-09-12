@@ -255,6 +255,83 @@ inline std::string StrFmt(const char* fmt, ...)
     return out;
 }
 
+
+// Aurora CN: convert wide literals to UTF-8 for Dear ImGui.
+// This avoids depending on the compiler's narrow execution character set.
+static std::string AuroraUtf8(const wchar_t* text)
+{
+    if (text == nullptr || *text == L'\0')
+        return {};
+
+    return wstring_to_string(std::wstring(text));
+}
+
+// Aurora CN: keep Hack (or the user's custom font) as the primary
+// Latin/technical font and merge a Windows Chinese font as fallback.
+static std::string FindChineseFallbackFont()
+{
+#ifdef _WIN32
+    wchar_t windowsDir[MAX_PATH] = {};
+
+    const UINT len = GetWindowsDirectoryW(windowsDir, MAX_PATH);
+    if (len == 0 || len >= MAX_PATH)
+        return {};
+
+    const std::filesystem::path fontsDir = std::filesystem::path(windowsDir) / L"Fonts";
+
+    // Prefer modern Simplified Chinese fonts, then fall back to legacy fonts.
+    const std::array<const wchar_t*, 4> candidates = {
+        L"msyh.ttc",   // Microsoft YaHei / 微软雅黑
+        L"Deng.ttf",   // DengXian / 等线
+        L"simhei.ttf", // SimHei / 黑体
+        L"simsun.ttc"  // SimSun / 宋体
+    };
+
+    for (const auto* fileName : candidates)
+    {
+        const auto path = fontsDir / fileName;
+        std::error_code ec;
+
+        if (std::filesystem::exists(path, ec) && !ec)
+            return wstring_to_string(path.wstring());
+    }
+#endif
+
+    return {};
+}
+
+static void AddChineseFontFallback(ImFontAtlas* atlas, float size)
+{
+#ifdef _WIN32
+    if (atlas == nullptr)
+        return;
+
+    const std::string chineseFontPath = FindChineseFallbackFont();
+
+    if (chineseFontPath.empty())
+    {
+        LOG_WARN("Aurora: no Windows Chinese fallback font was found");
+        return;
+    }
+
+    ImFontConfig chineseConfig;
+    chineseConfig.MergeMode = true;
+    chineseConfig.PixelSnapH = true;
+    chineseConfig.FontNo = 0;
+
+    // ImGui 1.92+ can request glyphs dynamically on backends with
+    // ImGuiBackendFlags_RendererHasTextures, so no fixed CJK range is required here.
+    if (atlas->AddFontFromFileTTF(chineseFontPath.c_str(), size, &chineseConfig) == nullptr)
+    {
+        LOG_WARN("Aurora: failed to load Chinese fallback font: {}", chineseFontPath);
+    }
+    else
+    {
+        LOG_INFO("Aurora: Chinese fallback font loaded: {}", chineseFontPath);
+    }
+#endif
+}
+
 void MenuCommon::UpdateManualInput(HWND targetHwnd)
 {
     OptiInput::BeginFrame(targetHwnd);
@@ -304,7 +381,9 @@ void MenuCommon::ShowTooltip(const char* tip)
     if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled))
     {
         ImGui::BeginTooltip();
-        ImGui::Text(tip);
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 36.0f);
+        ImGui::TextUnformatted(tip);
+        ImGui::PopTextWrapPos();
         ImGui::EndTooltip();
     }
 }
@@ -3179,17 +3258,17 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     // clang-format off
 
     inputOptions = {
-        { FGInput::NoFG, "None" },
-        { FGInput::Upscaler, "OptiFG (Upscaler)",
-            "Upscaler must be enabled\n\nCan be used with any FG Output, but might be imperfect with some\nTo prevent UI glitching, HUDfix required" },
-        { FGInput::DLSSG, "DLSSG via Streamline",
-            "Can be used with any FG Output\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\n\nLimited to games that use Streamline" },
-        { FGInput::NvngxFG, "DLSSG via Nvngx",
-            "Limited to variants of FSR FG\n\nRequires enabling DLSS-FG in game settings\nSupports HUDless out of the box\nUses Streamline swapchain for pacing" },
+        { FGInput::NoFG, AuroraUtf8(L"无") },
+        { FGInput::Upscaler, AuroraUtf8(L"OptiFG (Upscaler) / 超分"),
+            AuroraUtf8(L"需要先启用超分辨率。\n\n可与任意 FG Output 搭配，但部分游戏可能不完美。\n若出现 UI 重影或错位，通常需要 HUD Fix。") },
+        { FGInput::DLSSG, AuroraUtf8(L"DLSSG via Streamline / 经 Streamline"),
+            AuroraUtf8(L"可与任意 FG Output 搭配。\n\n需要先在游戏设置中启用 DLSS 帧生成。\n原生支持 HUDless。\n\n仅适用于使用 Streamline 的游戏。") },
+        { FGInput::NvngxFG, AuroraUtf8(L"DLSSG via NVNGX / 经 NVNGX"),
+            AuroraUtf8(L"仅适用于部分 FSR FG 变体。\n\n需要先在游戏设置中启用 DLSS 帧生成。\n原生支持 HUDless，并使用 Streamline 交换链进行帧节奏控制。") },
         { FGInput::FSRFG, "FSR 3.1 FG",
-            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
+            AuroraUtf8(L"可与任意 FG Output 搭配。\n\n需要先在游戏设置中启用 FSR 帧生成。\n原生支持 HUDless。") },
         { FGInput::FSRFG30, "FSR 3.0 FG",
-            "Can be used with any FG Output\n\nRequires enabling FSR-FG in game settings\nSupports HUDless out of the box" },
+            AuroraUtf8(L"可与任意 FG Output 搭配。\n\n需要先在游戏设置中启用 FSR 帧生成。\n原生支持 HUDless。") },
         { FGInput::XeFG, "XeFG" }
     };
 
@@ -3244,10 +3323,10 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     // clang-format off
 
     outputOptions = {
-        { FGOutput::NoFG, "None" },
-        { FGOutput::FSRFG, "FSR FG", "FSR3/4-FG, RDNA4 autoupgrades to FSR4-FG\n\nFSR4-FG sometimes better/worse than XeFG" },
-        { FGOutput::DLSSG, "DLSSG", "DLSSG output\ncan be used in conjuction with Nukem's for example" },
-        { FGOutput::XeFG, "XeFG", "XeFG - heaviest, but best universal FG\n\nXeFG 3 overall deals best with HUD\n\nEnable UI Composition if HUD ghosting" },
+        { FGOutput::NoFG, AuroraUtf8(L"无") },
+        { FGOutput::FSRFG, "FSR FG", AuroraUtf8(L"FSR 3/4 帧生成。RDNA4 可自动升级到 FSR 4 FG。\n\nFSR 4 FG 与 XeFG 的效果会因游戏而异。") },
+        { FGOutput::DLSSG, "DLSSG", AuroraUtf8(L"DLSSG 输出。\n例如可以与 Nukem's 方案配合使用。") },
+        { FGOutput::XeFG, "XeFG", AuroraUtf8(L"XeFG 开销较高，但通常是兼容性较好的通用帧生成方案。\n\nXeFG 3 对 HUD 的处理通常更好。\n\n若 HUD 出现重影，可尝试启用 UI Composition。") },
     };
 
     // clang-format on
@@ -3316,7 +3395,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
     // clang-format off
 
     nvngxOptions = {
-        { FGNvngxReplacement::None, "None (Real DLSSG)", "Real DLSSG, For RTX 40xx and above"},
+        { FGNvngxReplacement::None, AuroraUtf8(L"无（原生 DLSSG）"), AuroraUtf8(L"使用原生 DLSSG，适用于 RTX 40 系及以上显卡。") },
         { FGNvngxReplacement::Nukems, "Nukem's", "FSR 3 FG" },
         { FGNvngxReplacement::Arturs, "Enabler", "FSR 3 MFG" },
         { FGNvngxReplacement::FFX, "FSR 3/4 FG", "FSR 3/4 FG using the FFX" },
@@ -3344,7 +3423,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
     if (replaceFgOutputWithNvngx)
     {
-        nvngxOptions[fgNvngxNoneIndex].label = "None";
+        nvngxOptions[fgNvngxNoneIndex].label = AuroraUtf8(L"无");
         nvngxOptions[fgNvngxNoneIndex].set_hidden(true);
     }
 
@@ -3371,28 +3450,27 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
 
     if (state.activeFgInput != FGInput::ForceXeLL)
     {
-        ImGui::SeparatorText("Frame Generation");
+        ImGui::SeparatorText(AuroraUtf8(L"Frame Generation / 帧生成").c_str());
 
         if (ImGui::BeginTable("fgSelection", 2, ImGuiTableFlags_SizingStretchSame))
         {
             ImGui::TableNextColumn();
 
-            PopulateCombo("FG Input", config->FGInput, inputOptions);
-            ShowTooltip("The data source to be used for FG\n"
-                        "The native FG which the game supports");
+            PopulateCombo(AuroraUtf8(L"FG Input / 帧生成输入"), config->FGInput, inputOptions);
+            ShowTooltip(AuroraUtf8(L"选择帧生成使用的数据来源。\n通常应选择游戏本身支持或 Aurora 已验证的输入方式。").c_str());
 
             ImGui::TableNextColumn();
 
             if (replaceFgOutputWithNvngx)
             {
                 // Disable None?
-                PopulateCombo("FG Nvngx", config->FGNvngxReplacement, nvngxOptions);
-                ShowTooltip("What backend to use instead of the real DLSSG");
+                PopulateCombo(AuroraUtf8(L"NVNGX Replacement / 替换"), config->FGNvngxReplacement, nvngxOptions);
+                ShowTooltip(AuroraUtf8(L"选择用于替代原生 DLSSG 的帧生成后端。").c_str());
             }
             else
             {
-                PopulateCombo("FG Output", config->FGOutput, outputOptions);
-                ShowTooltip("The FG that you will actually be using");
+                PopulateCombo(AuroraUtf8(L"FG Output / 帧生成输出"), config->FGOutput, outputOptions);
+                ShowTooltip(AuroraUtf8(L"选择实际负责生成插帧的帧生成后端。").c_str());
             }
 
             ImGui::EndTable();
@@ -3401,8 +3479,8 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         // Should be on a new line
         if (showNvngxFgDowndown)
         {
-            PopulateCombo("FG Nvngx Replacement", config->FGNvngxReplacement, nvngxOptions);
-            ShowTooltip("What backend to use instead of the real DLSSG");
+            PopulateCombo(AuroraUtf8(L"NVNGX Replacement / 替换"), config->FGNvngxReplacement, nvngxOptions);
+            ShowTooltip(AuroraUtf8(L"选择用于替代原生 DLSSG 的帧生成后端。").c_str());
         }
 
         // Try to avoid having None selected when the gpu doesn't support DLSSG + some fallbacks
@@ -3441,7 +3519,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         {
             ImGui::Spacing();
             ImGui::TextColored(toneMapColor(ImVec4(1.f, 0.f, 0.0f, 1.f)),
-                               "Save Settings and restart to apply the changes");
+                               AuroraUtf8(L"请先保存设置并完全重启游戏，以应用帧生成输入/输出修改。").c_str());
             ImGui::Spacing();
         }
 
@@ -3851,7 +3929,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
             }
 
             bool fgActive = config->FGEnabled.value_or_default();
-            if (ImGui::Checkbox("Active##2", &fgActive))
+            if (ImGui::Checkbox(AuroraUtf8(L"启用##2").c_str(), &fgActive))
             {
                 config->FGEnabled = fgActive;
                 LOG_DEBUG("FGEnabled set FGEnabled: {}", fgActive);
@@ -4128,7 +4206,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         ImGui::BeginDisabled(!correctMVs || cantActivate);
 
         bool fgActive = config->FGEnabled.value_or_default();
-        if (ImGui::Checkbox("Active##3", &fgActive))
+        if (ImGui::Checkbox(AuroraUtf8(L"启用##3").c_str(), &fgActive))
         {
             config->FGEnabled = fgActive;
             LOG_DEBUG("Enabled set FGEnabled: {}", fgActive);
@@ -4291,7 +4369,7 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
         }
 
         bool fgActive = config->FGEnabled.value_or_default();
-        if (ImGui::Checkbox("Active##4", &fgActive))
+        if (ImGui::Checkbox(AuroraUtf8(L"启用##4").c_str(), &fgActive))
         {
             config->FGEnabled = fgActive;
             LOG_DEBUG("Enabled set FGEnabled: {}", fgActive);
@@ -7383,12 +7461,12 @@ void MenuCommon::RenderMainMenuBottomBar(RenderMenuContext& ctx)
 
     ImGui::SameLine(0.0f, 15.0f);
 
-    if (ImGui::Button("Save Settings"))
+    if (ImGui::Button(AuroraUtf8(L"保存设置").c_str()))
         config->SaveIni();
 
     ImGui::SameLine(0.0f, 6.0f);
 
-    if (ImGui::Button("Close"))
+    if (ImGui::Button(AuroraUtf8(L"关闭").c_str()))
     {
         _isVisible = false;
         hasGamepad = (io.BackendFlags | ImGuiBackendFlags_HasGamepad) > 0;
@@ -7601,7 +7679,7 @@ void MenuCommon::RenderMipmapBiasWindow(RenderMenuContext& ctx, ImGuiWindowFlags
 
             constexpr float spacing = 6.0f;
             auto textSize = ImGui::CalcTextSize("Use Value");
-            textSize += ImGui::CalcTextSize("Close");
+            textSize += ImGui::CalcTextSize(AuroraUtf8(L"关闭").c_str());
             textSize.x += ImGui::GetStyle().FramePadding.x * 5.0f + spacing; // 2 sides * 2 buttons + 1
 
             float avail = ImGui::GetContentRegionAvail().x;
@@ -7615,7 +7693,7 @@ void MenuCommon::RenderMipmapBiasWindow(RenderMenuContext& ctx, ImGuiWindowFlags
 
             ImGui::SameLine(0.0f, spacing);
 
-            if (ImGui::Button("Close"))
+            if (ImGui::Button(AuroraUtf8(L"关闭").c_str()))
                 _showMipmapCalcWindow = false;
 
             ImGui::Spacing();
@@ -7992,28 +8070,39 @@ void MenuCommon::Init(HWND InHwnd, bool isUWP)
         }
     }
 
-    if (io.Fonts->Fonts.empty() && Config::Instance()->UseHQFont.value_or_default())
+    if (io.Fonts->Fonts.empty())
     {
         ImFontAtlas* atlas = io.Fonts;
         atlas->Clear();
 
-        // This automatically becomes the next default font
         ImFontConfig fontConfig;
 
         if (Config::Instance()->FontSize.has_value())
             fontSize = Config::Instance()->FontSize.value();
 
-        if (Config::Instance()->TTFFontPath.has_value())
+        if (Config::Instance()->UseHQFont.value_or_default())
         {
-            io.FontDefault =
-                atlas->AddFontFromFileTTF(wstring_to_string(Config::Instance()->TTFFontPath.value()).c_str(), fontSize,
-                                          &fontConfig, io.Fonts->GetGlyphRangesDefault());
+            if (Config::Instance()->TTFFontPath.has_value())
+            {
+                // Do not restrict a custom font to Latin-only glyph ranges on ImGui 1.92+.
+                io.FontDefault =
+                    atlas->AddFontFromFileTTF(wstring_to_string(Config::Instance()->TTFFontPath.value()).c_str(),
+                                              fontSize, &fontConfig);
+            }
+            else
+            {
+                io.FontDefault = atlas->AddFontFromMemoryCompressedBase85TTF(
+                    hack_compressed_compressed_data_base85, fontSize, &fontConfig);
+            }
         }
         else
         {
-            io.FontDefault = atlas->AddFontFromMemoryCompressedBase85TTF(hack_compressed_compressed_data_base85,
-                                                                         fontSize, &fontConfig);
+            // Keep the non-HQ mode close to ImGui's default appearance, but add the
+            // base font explicitly so the Chinese fallback can merge into it.
+            io.FontDefault = atlas->AddFontDefault();
         }
+
+        AddChineseFontFallback(atlas, fontSize);
     }
 
     if (!Config::Instance()->OverlayMenu.value_or_default())
