@@ -1,4 +1,4 @@
-param(
+﻿param(
     [ValidateSet("Install","Check","Restore")]
     [string]$Mode = "Check",
     [string]$InstallDir = $PSScriptRoot,
@@ -27,6 +27,57 @@ function Get-FileVersionSafe([string]$Path) {
         if ($null -eq $v) { return "" }
         return $v.Trim()
     } catch { return "" }
+}
+
+function Get-StreamlineMajorVersion([string]$Path) {
+    if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return 0 }
+
+    $name = [System.IO.Path]::GetFileName($Path).ToLowerInvariant()
+
+    # Only inspect Streamline DLLs.
+    # 只检查 Streamline DLL。
+    if (-not ($name.StartsWith("sl.") -and $name.EndsWith(".dll"))) {
+        return 0
+    }
+
+    try {
+        $info = (Get-Item -LiteralPath $Path).VersionInfo
+
+        # Prefer Windows' numeric version fields.
+        # 优先使用 Windows 提供的数字主版本字段，避免受到本地化版本字符串格式影响。
+        foreach ($major in @($info.FileMajorPart, $info.ProductMajorPart)) {
+            if ($major -eq 1 -or $major -eq 2) {
+                return [int]$major
+            }
+        }
+
+        # Fallback for DLLs whose numeric version metadata is incomplete.
+        # 如果数字版本字段不可用，再从 FileVersion / ProductVersion 文本中识别。
+        foreach ($rawVersion in @($info.FileVersion, $info.ProductVersion)) {
+            if ([string]::IsNullOrWhiteSpace($rawVersion)) { continue }
+
+            # Accept both 1.5.6.0 and localized forms such as 2,14,0,0.
+            # 同时兼容点号和逗号分隔的版本号。
+            $match = [regex]::Match(
+                $rawVersion,
+                '(?<!\d)([12])(?:[.,]\s*\d+)+'
+            )
+
+            if ($match.Success) {
+                $major = 0
+
+                if ([int]::TryParse($match.Groups[1].Value, [ref]$major)) {
+                    return $major
+                }
+            }
+        }
+    }
+    catch {
+        return 0
+    }
+
+    # 0 = unknown / 无法判断
+    return 0
 }
 
 function Get-StringSha256([string]$Text) {
@@ -242,7 +293,140 @@ function Sync-One($Entries, [string]$TargetPath, [bool]$AllowBackup) {
         Write-Warn2 "No bundled source for $name"
         return [pscustomobject]@{ Entries=$Entries; Status="Skip" }
     }
+	    # Recover legacy Streamline 1.x files that an older Aurora Runtime Sync
+    # may already have replaced with the bundled Streamline 2.x runtime.
+    # 如果旧版 Aurora 已经把游戏原生 SL1 替换成 SL2，则优先从已验证备份自动恢复。
+    if ($name.StartsWith("sl.") -and $name.EndsWith(".dll") -and
+        (Test-Path -LiteralPath $TargetPath -PathType Leaf)) {
 
+        $existingEntry = Find-Entry $Entries $TargetPath
+
+        if ($null -ne $existingEntry) {
+            $backupPath = [string]$existingEntry.BackupPath
+
+            if (-not [string]::IsNullOrWhiteSpace($backupPath) -and
+                (Test-Path -LiteralPath $backupPath -PathType Leaf)) {
+
+                $backupMajor = Get-StreamlineMajorVersion $backupPath
+
+                if ($backupMajor -eq 1) {
+                    $backupHash = Get-FileHashSafe $backupPath
+                    $expectedOriginalHash = [string]$existingEntry.OriginalHash
+                    $currentHashEarly = Get-FileHashSafe $TargetPath
+                    $previousDeployedHash = [string]$existingEntry.DeployedHash
+                    $currentMajorEarly = Get-StreamlineMajorVersion $TargetPath
+
+                    # Never restore from an unverified backup.
+                    # 未通过哈希校验的备份绝不自动恢复。
+                    if ([string]::IsNullOrWhiteSpace($backupHash) -or
+                        (-not [string]::IsNullOrWhiteSpace($expectedOriginalHash) -and
+                         $backupHash -ne $expectedOriginalHash)) {
+
+                        Write-Fail "Legacy Streamline backup verification failed: $backupPath"
+                        Write-Fail "旧版 Streamline 备份校验失败，未修改游戏文件。"
+
+                        return [pscustomobject]@{
+                            Entries = $Entries
+                            Status  = "Fail"
+                        }
+                    }
+
+                    # The launcher or Steam may already have restored SL1 itself.
+                    # If so, remove the stale Aurora management entry.
+                    # 如果游戏/启动器已经自行恢复 SL1，只清理旧管理记录，不再修改 DLL。
+                    if ($currentMajorEarly -eq 1) {
+                        Write-Info "Game-native Streamline 1.x is already restored: $name"
+                        Write-Info "检测到游戏原生 Streamline 1.x 已恢复，清理旧 Runtime Sync 记录。"
+
+                        $Entries = @(
+                            $Entries | Where-Object {
+                                ([string]$_.TargetPath) -ine $TargetPath
+                            }
+                        )
+                    }
+                    elseif (-not [string]::IsNullOrWhiteSpace($previousDeployedHash) -and
+                            $currentHashEarly -eq $previousDeployedHash) {
+
+                        try {
+                            Copy-Item -LiteralPath $backupPath -Destination $TargetPath -Force
+
+                            $afterHash = Get-FileHashSafe $TargetPath
+                            if ($afterHash -ne $backupHash) {
+                                throw "Restored file hash does not match the verified backup."
+                            }
+
+                            $Entries = @(
+                                $Entries | Where-Object {
+                                    ([string]$_.TargetPath) -ine $TargetPath
+                                }
+                            )
+
+                            Write-Fix "Restored game-native Streamline 1.x: $name"
+                            Write-Fix "已自动恢复游戏原生 Streamline 1.x：$name"
+
+                            return [pscustomobject]@{
+                                Entries = $Entries
+                                Status  = "Fixed"
+                            }
+                        }
+                        catch {
+                            Write-Fail "Could not restore legacy Streamline backup: $TargetPath"
+                            Write-Fail "旧版 Streamline 自动恢复失败，目标文件保持现状。"
+
+                            return [pscustomobject]@{
+                                Entries = $Entries
+                                Status  = "Fail"
+                            }
+                        }
+                    }
+                    else {
+                        # The managed target changed after Aurora installed it.
+                        # Do not overwrite an unknown user/game state.
+                        # 当前文件已被其他程序或用户修改，不擅自覆盖。
+                        Write-Warn2 "Legacy SL1 backup exists, but the current target no longer matches Aurora's deployed copy."
+                        Write-Warn2 "Keeping the current file untouched for safety."
+                        Write-Warn2 "存在 SL1 原版备份，但当前文件已发生变化；为安全起见不自动覆盖。"
+
+                        return [pscustomobject]@{
+                            Entries = $Entries
+                            Status  = "LegacySL1"
+                        }
+                    }
+                }
+            }
+        }
+    }
+    # Legacy Streamline 1.x is ABI-incompatible with the bundled Streamline 2.x runtime.
+    # Never replace a game-native SL1 DLL with Aurora's SL2 runtime.
+    # 旧版 Streamline 1.x 与 Aurora 集成的 Streamline 2.x 并非普通的小版本升级，
+    # 检测到游戏原生 SL1 时必须保留游戏自己的 DLL。
+    if ($name.StartsWith("sl.") -and $name.EndsWith(".dll")) {
+        $slMajor = Get-StreamlineMajorVersion $TargetPath
+        if ($slMajor -eq 1) {
+            $version = Get-FileVersionSafe $TargetPath
+            $label = if ($version) { "$name [$version]" } else { $name }
+            Write-Warn2 "Legacy Streamline 1.x detected: $label"
+            Write-Warn2 "Keeping the game-native Streamline runtime unchanged."
+            Write-Warn2 "检测到 Streamline 1.x：保留游戏原生运行库，不进行替换。"
+            return [pscustomobject]@{
+                Entries = $Entries
+                Status  = "LegacySL1"
+            }
+        }
+		        elseif ($slMajor -eq 0) {
+            $version = Get-FileVersionSafe $TargetPath
+            $label = if ($version) { "$name [$version]" } else { $name }
+
+            Write-Warn2 "Unknown Streamline generation: $label"
+            Write-Warn2 "Keeping the game-native Streamline runtime unchanged for safety."
+            Write-Warn2 "无法确认 Streamline 版本代际：为避免兼容性问题，保留游戏原生运行库。"
+
+            return [pscustomobject]@{
+                Entries = $Entries
+                Status  = "UnknownSL"
+            }
+        }
+    }
     $source = $Sources[$name]
     $sourceHash = Get-FileHashSafe $source
     $sourceVer = Get-FileVersionSafe $source
@@ -395,7 +579,7 @@ function Restore-All($Manifest) {
 
 Write-Host ""
 Write-Host "============================================================" -ForegroundColor DarkGray
-Write-Host " OptiScaler Aurora DLSS / Streamline Runtime Sync v1.2 / 运行库同步 v1.2" -ForegroundColor White
+Write-Host " OptiScaler Aurora DLSS / Streamline Runtime Sync v1.3 / 运行库同步 v1.3" -ForegroundColor White
 Write-Host "============================================================" -ForegroundColor DarkGray
 Write-Info "Install folder: $InstallDir"
 Write-Info "Scan root:      $ScanRoot"
@@ -436,16 +620,20 @@ $ok = 0
 $fixed = 0
 $failed = 0
 $missing = 0
+$legacySL1 = 0
+$unknownSL = 0
 
 foreach ($target in $targets) {
     $r = Sync-One $entries $target $true
     $entries = @($r.Entries)
     switch ($r.Status) {
-        "OK"      { $ok++ }
-        "Fixed"   { $fixed++ }
-        "Fail"    { $failed++ }
-        "Missing" { $missing++ }
-    }
+    "OK"        { $ok++ }
+    "Fixed"     { $fixed++ }
+    "Fail"      { $failed++ }
+    "Missing"   { $missing++ }
+    "LegacySL1" { $legacySL1++ }
+    "UnknownSL" { $unknownSL++ }
+	}
 }
 
 Save-Manifest $entries
@@ -453,6 +641,12 @@ Save-Manifest $entries
 Write-Host ""
 Write-Host "------------------------------------------------------------" -ForegroundColor DarkGray
 Write-Info "Checked: $($targets.Count)  Already correct: $ok  Repaired: $fixed  Failed: $failed  Missing: $missing"
+if ($legacySL1 -gt 0) {
+    Write-Ok "Protected legacy Streamline 1.x files: $legacySL1"
+}
+if ($unknownSL -gt 0) {
+    Write-Warn2 "Protected Streamline files with unknown generation: $unknownSL"
+}
 if ($failed -eq 0) {
     Write-Ok "Runtime set is ready."
     Write-Host "        If this game uses a launcher, you can now click Start Game." -ForegroundColor Green

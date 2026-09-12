@@ -448,8 +448,6 @@ echo.
 if exist "%~dp0Check_DLSS_Runtime.bat" (
     echo   After a launcher verifies or updates the game, run Check_DLSS_Runtime.bat
     echo   to check and repair game-local DLSS / Streamline runtime files.
-    echo   游戏启动器验证或更新文件后，可运行 Check_DLSS_Runtime.bat 自检并修复
-    echo   游戏自带的 DLSS / Streamline 运行库。
     echo.
 )
 
