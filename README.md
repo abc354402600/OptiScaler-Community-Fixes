@@ -53,6 +53,7 @@
 | Onimusha compatibility changes | ✅ 鬼武者兼容性增强 |
 | Legacy Streamline 1.x protection | ✅ 自动识别 / 保护 / 自愈 |
 | The Witcher 3 compatibility | ✅ SL1 protection + RTX 40 6X MFG |
+| The Blood of Dawnwalker compatibility | ✅ DLSS 5 + RTX 40 6X MFG verified |
 
 ---
 
@@ -233,6 +234,7 @@ You can then configure:
 | **Neverness to Everness / 异环** | `winmm.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ⚠️ **Not recommended / 不推荐** | `dxgi.dll` may trigger illegal-module detection; Aurora fixes the RTX 40 MFG instant crash. / `dxgi.dll` 可能触发非法模块检测；Aurora 已修复 RTX 40 MFG 瞬间闪退。 |
 | **Onimusha: Way of the Sword / 鬼武者：剑之道** | `dxgi.dll` | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | ❌ **Disable / 建议关闭** | May cause severe visual corruption when enabled; Aurora includes additional compatibility changes. / 开启后可能严重花屏；Aurora 已加入额外兼容性修改。 |
 | **The Witcher 3: Wild Hunt / 巫师3：狂猎** | `dxgi.dll` | ✅ **6X Verified via OptiFG / 已验证 6X** | ✅ Works / 可用 | — Not used / 未使用 | Keep the game's native Streamline 1.5.6. For 3X–6X MFG, use `OptiFG (Upscaler) → DLSSG → None (Real DLSSG)`. / 保留游戏原生 Streamline 1.5.6；多帧生成使用 OptiFG → DLSSG。 |
+| **The Blood of Dawnwalker / 黎明行者之血** | — | ✅ **6X Verified / 已验证 6X** | ✅ Works / 可用 | — Not tested / 未测试 | **DLSS 5 + 6X MFG verified together. / 已验证 DLSS 5 与 6X 多帧生成可同时正常使用。** |
 
 > [!TIP]
 > **This table only lists configurations that have been tested or explicitly documented for Aurora.**  
@@ -334,6 +336,30 @@ Verified configuration / 已验证配置：
 > 修改 `FG Input / FG Output` 后，必须先 **Save Settings 并重启游戏**，之后才会出现完整的 DLSSG 帧生成控制项。
 
 ![The Witcher 3 Aurora 6X MFG setup](images/witcher3_mfg_6x_setup.png)
+
+---
+
+### The Blood of Dawnwalker / 黎明行者之血
+
+Aurora has been verified with **DLSS 5 and RTX 40 Multi Frame Generation enabled together**.
+
+Verified result:
+
+- DLSS 5 works correctly
+- RTX 40-series **6X MFG works correctly**
+- **DLSS 5 + 6X MFG can be used simultaneously**
+
+Aurora 已完成《黎明行者之血》实机验证：
+
+- **DLSS 5 正常运行**
+- RTX 40 系 **6X 多帧生成正常运行**
+- **DLSS 5 + 6X 多帧生成可以同时正常使用**
+
+> [!NOTE]
+> The game's native Frame Generation options do not define Aurora's final MFG limit. If a system only exposes 2X in Aurora, check the Aurora configuration, saved settings, loaded DLSSG runtime, and restart state before treating it as a game limitation.
+>
+> 游戏原生帧生成选项并不代表 Aurora 的最终 MFG 上限。如果 Aurora 本身只能显示 2X，应优先检查 Aurora 设置、配置是否保存、实际加载的 DLSSG Runtime，以及是否完整重启游戏，而不是直接认为该游戏只支持 2X。
+
 
 ## 🛠️ Troubleshooting / 常见问题与排错
 

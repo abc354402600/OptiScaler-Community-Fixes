@@ -3559,7 +3559,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
                 ImGui::SameLine(0.0f, 16.0f);
 
                 if (bool dynamicMFG = config->FGDLSSGOverrideForceDMFG.value_or_default();
-                    ImGui::Checkbox(AURORA_CN("强制动态 MFG"), &dynamicMFG))
+                    ImGui::Checkbox(AURORA_CN("动态多帧生成"), &dynamicMFG))
                 {
                     config->FGDLSSGOverrideForceDMFG = dynamicMFG;
                     StreamlineHooks::updateDlssgOptions();
@@ -3629,7 +3629,7 @@ void MenuCommon::RenderFrameGenerationSelection(RenderMenuContext& ctx)
         {
             ImGui::BeginDisabled(state.dlssgLastSetMode != sl::DLSSGMode::eDynamic);
             static float fpsTarget = config->FGDLSSGFramerateTargetDMFG.value_or_default();
-            ImGui::SliderFloat(AURORA_CN("DMFG 目标 FPS"), &fpsTarget, 0, 200, "%.0f");
+            ImGui::SliderFloat(AURORA_CN("动态多帧生成目标帧数"), &fpsTarget, 0, 200, "%.0f");
 
             ShowHelpMarker(AURORA_CN("设为 0 时，会自动检测显示器刷新率作为生效上限。"));
 
@@ -4364,14 +4364,14 @@ void MenuCommon::RenderFrameGenerationRuntimeSettings(RenderMenuContext& ctx)
                 ImGui::SameLine(0.0f, 16.0f);
 
                 if (bool dynamicMFG = config->FGDLSSGForceDMFG.value_or_default();
-                    ImGui::Checkbox(AURORA_CN("强制动态 MFG"), &dynamicMFG))
+                    ImGui::Checkbox(AURORA_CN("动态多帧生成"), &dynamicMFG))
                 {
                     config->FGDLSSGForceDMFG = dynamicMFG;
                 }
 
                 ImGui::BeginDisabled(!config->FGDLSSGForceDMFG.value_or_default());
                 static float fpsTarget = config->FGDLSSGFramerateTargetDMFG.value_or_default();
-                ImGui::SliderFloat(AURORA_CN("DMFG 目标 FPS"), &fpsTarget, 0, 200, "%.0f");
+                ImGui::SliderFloat(AURORA_CN("动态多帧生成目标帧数"), &fpsTarget, 0, 200, "%.0f");
 
                 ShowHelpMarker(AURORA_CN("设为 0 时，会自动检测显示器刷新率作为生效上限。"));
 
