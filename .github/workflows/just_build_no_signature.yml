@@ -75,7 +75,7 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}} /verbosity:minimal
 
     - name: Add README / 添加说明文档
-      run: Copy-Item ${{ github.workspace }}\dist\README.md ${{ github.workspace }}\x64\Release\a\README.md
+      run: Copy-Item ${{ github.workspace }}\README.md ${{ github.workspace }}\x64\Release\a\README.md
 
     # Streamline 2.14 is included in every Aurora package.
     - name: Add Streamline 2.14 / 添加 Streamline 2.14
